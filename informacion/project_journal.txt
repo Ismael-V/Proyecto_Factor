@@ -1,0 +1,18 @@
+1) Buscar sobre algoritmos de factorización RSA para ver si es vulnerable contra el algoritmo de factorización previsto.
+2) Fabricar un algoritmo inocente para factorizar
+3) Medir tiempos en benchmarks de 16, 32, 48, 64
+
+
+
+Horas hechadas
+10 h planteamiento y redaccion de la memoria inicial
+5 h redaccion del primer algoritmo
+5 h redaccion del algoritmo para numeros grandes
+2 h redaccion del algoritmo para numeros grandes version iterativa
+1,5 h redaccion del apartado de algoritmos e inclusion de anexos
+2h experimentación con la generalización del peso de Hamming
+4,5 h redacción de la demostración de la cota superior de la generalización del peso de Hamming
+2,5 h generación de benchmarks
+3,5 h instalación de CUDA así como de la librería de números grandes para gráficas
+2 h medidas de tiempo en los benchmarks 64_bits
+2,5 h benchmarks para 16, 32, 48, 64 bits en tres algoritmos distintos
