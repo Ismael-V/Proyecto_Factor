@@ -1,6 +1,7 @@
 1) Buscar sobre algoritmos de factorización RSA para ver si es vulnerable contra el algoritmo de factorización previsto.
 2) Fabricar un algoritmo inocente para factorizar
 3) Medir tiempos en benchmarks de 16, 32, 48, 64
+4) Configurar git para funcionar con clave publica
 
 
 
