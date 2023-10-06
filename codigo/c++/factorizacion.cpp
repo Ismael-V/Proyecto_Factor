@@ -27,9 +27,9 @@ uint16_t numero_datos = 0;
 chrono::high_resolution_clock reloj;
 chrono::time_point<chrono::high_resolution_clock>	invocacion, finalizacion, inicio_divisibilidad, 
 													fin_divisibilidad, inicio_exploracion, fin_exploracion;
-chrono::microseconds tiempo_factorizado = chrono::duration<int64_t>::zero();
-chrono::microseconds tiempo_divisibilidad = chrono::duration<int64_t>::zero();
-chrono::microseconds tiempo_exploracion = chrono::duration<int64_t>::zero();
+chrono::nanoseconds tiempo_factorizado = chrono::duration<int64_t>::zero();
+chrono::nanoseconds tiempo_divisibilidad = chrono::duration<int64_t>::zero();
+chrono::nanoseconds tiempo_exploracion = chrono::duration<int64_t>::zero();
 
 //Pre: True
 //Post: Devuelve el peso de Hamming de un numero de tamanyo arbitrario.
@@ -88,7 +88,7 @@ void mpz_factoriza_iterativo(mpz_t rop, const mpz_t N, const mpz_t M, uint16_t p
 
 					//<---- Fin de exploracion
 					fin_exploracion = reloj.now();
-					tiempo_exploracion += chrono::duration_cast<chrono::microseconds>(fin_exploracion - inicio_exploracion);
+					tiempo_exploracion += chrono::duration_cast<chrono::nanoseconds>(fin_exploracion - inicio_exploracion);
                     
 					//<---- Inicio de divisibilidad
 					inicio_divisibilidad = reloj.now();
@@ -121,7 +121,7 @@ void mpz_factoriza_iterativo(mpz_t rop, const mpz_t N, const mpz_t M, uint16_t p
 
 					//<---- Fin de divisibilidad
 					fin_divisibilidad = reloj.now();
-					tiempo_divisibilidad += chrono::duration_cast<chrono::microseconds>(fin_divisibilidad - inicio_divisibilidad);
+					tiempo_divisibilidad += chrono::duration_cast<chrono::nanoseconds>(fin_divisibilidad - inicio_divisibilidad);
 
 					//Quitamos el 1 de esa posicion
 					mpz_clrbit(solucion_fabricada, index);
@@ -151,7 +151,7 @@ void mpz_factoriza_iterativo(mpz_t rop, const mpz_t N, const mpz_t M, uint16_t p
 
 					//<---- Fin de exploracion (Usando el timestamp de divisibilidad)
 					fin_exploracion = reloj.now();
-					tiempo_exploracion += chrono::duration_cast<chrono::microseconds>(fin_exploracion - fin_divisibilidad);
+					tiempo_exploracion += chrono::duration_cast<chrono::nanoseconds>(fin_exploracion - fin_divisibilidad);
 
 					//<---- Inicio de exploracion
 					inicio_exploracion = reloj.now();
@@ -206,7 +206,7 @@ void mpz_factoriza_iterativo(mpz_t rop, const mpz_t N, const mpz_t M, uint16_t p
 
 	//<---- Fin de exploracion
 	fin_exploracion = reloj.now();
-	tiempo_exploracion += chrono::duration_cast<chrono::microseconds>(fin_exploracion - inicio_exploracion);
+	tiempo_exploracion += chrono::duration_cast<chrono::nanoseconds>(fin_exploracion - inicio_exploracion);
 }
 
 bool leer_datos(istream& entrada){
@@ -225,8 +225,8 @@ bool leer_datos(istream& entrada){
     return true;
 }
 
-#define BENCHMARKS "semiprimes_64.txt"
-#define RESULTADOS "semiprimes_results_64.csv"
+#define BENCHMARKS "../../benchmarks/semiprimes_64.txt"
+#define RESULTADOS "../../resultados_nanosecs/semiprimes_results_64.csv"
 
 int main(){
 
@@ -247,7 +247,7 @@ int main(){
 	ofstream salida (RESULTADOS);
 	if(salida.is_open()){
 
-		salida << "Numero,Estado,Tiempo de Ejecución (us),Tiempo de Exploración (us),Tiempo de Divisibilidad (us)\n";
+		salida << "Numero,Estado,Tiempo de Ejecución (ns),Tiempo de Exploración (ns),Tiempo de Divisibilidad (ns)\n";
 		
 		//Para cada elemento del benchmark
 		for(uint16_t i = 0; i < numero_datos; i++){
@@ -267,7 +267,7 @@ int main(){
 			invocacion = reloj.now();
 			mpz_factoriza_iterativo(p, N, M, semiprimos[i].peso);
 			finalizacion = reloj.now();
-			tiempo_factorizado = chrono::duration_cast<chrono::microseconds>(finalizacion - invocacion);
+			tiempo_factorizado = chrono::duration_cast<chrono::nanoseconds>(finalizacion - invocacion);
 
 			//Sacamos su factor para comprobar que coinciden
 			mpz_set_str(s, semiprimos[i].factor_p.c_str(), 10);
@@ -278,9 +278,9 @@ int main(){
 				salida << semiprimos[i].clave_publica << ",FAILURE!!!," << tiempo_factorizado.count() << "," << tiempo_exploracion.count() << "," << tiempo_divisibilidad.count() << endl;
 			}
 
-			cout << "\nTiempo requerido: " << tiempo_factorizado.count() << " us\n";
-			cout << "Tiempo requerido de divisibilidad: " << tiempo_divisibilidad.count() << " us\n";
-			cout << "Tiempo requerido de exploracion: " << tiempo_exploracion.count() << " us\n";
+			cout << "\nTiempo requerido: " << tiempo_factorizado.count() << " ns\n";
+			cout << "Tiempo requerido de divisibilidad: " << tiempo_divisibilidad.count() << " ns\n";
+			cout << "Tiempo requerido de exploracion: " << tiempo_exploracion.count() << " ns\n";
 			
 			//Si encontramos un factor imprimimos por pantalla la factorizacion
 			if(mpz_cmp_ui(p, 0) != 0){

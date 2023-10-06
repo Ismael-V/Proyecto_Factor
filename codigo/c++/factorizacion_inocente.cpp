@@ -27,9 +27,9 @@ uint16_t numero_datos = 0;
 chrono::high_resolution_clock reloj;
 chrono::time_point<chrono::high_resolution_clock>	invocacion, finalizacion, inicio_divisibilidad, 
 													fin_divisibilidad, inicio_exploracion, fin_exploracion;
-chrono::microseconds tiempo_factorizado = chrono::duration<int64_t>::zero();
-chrono::microseconds tiempo_divisibilidad = chrono::duration<int64_t>::zero();
-chrono::microseconds tiempo_exploracion = chrono::duration<int64_t>::zero();
+chrono::nanoseconds tiempo_factorizado = chrono::duration<int64_t>::zero();
+chrono::nanoseconds tiempo_divisibilidad = chrono::duration<int64_t>::zero();
+chrono::nanoseconds tiempo_exploracion = chrono::duration<int64_t>::zero();
 
 void mpz_factorizacion_inocente(mpz_t rop, const mpz_t N){
     //La solucion con la que trabajaremos
@@ -66,8 +66,8 @@ bool leer_datos(istream& entrada){
     return true;
 }
 
-#define BENCHMARKS "semiprimes_64.txt"
-#define RESULTADOS "inocent_semiprimes_results_64.csv"
+#define BENCHMARKS "../../benchmarks/semiprimes_48.txt"
+#define RESULTADOS "../../resultados_nanosecs/inocent_semiprimes_results_48.csv"
 
 int main(){
 
@@ -88,7 +88,7 @@ int main(){
 	ofstream salida (RESULTADOS);
 	if(salida.is_open()){
 
-		salida << "Numero,Estado,Tiempo de Ejecución (us)\n";
+		salida << "Numero,Estado,Tiempo de Ejecución (ns)\n";
 		
 		//Para cada elemento del benchmark
 		for(uint16_t i = 0; i < numero_datos; i++){
@@ -103,7 +103,7 @@ int main(){
 			invocacion = reloj.now();
 			mpz_factorizacion_inocente(p, N);
 			finalizacion = reloj.now();
-			tiempo_factorizado = chrono::duration_cast<chrono::microseconds>(finalizacion - invocacion);
+			tiempo_factorizado = chrono::duration_cast<chrono::nanoseconds>(finalizacion - invocacion);
 
 			//Sacamos su factor para comprobar que coinciden
 			mpz_set_str(s, semiprimos[i].factor_p.c_str(), 10);
@@ -114,7 +114,7 @@ int main(){
 				salida << semiprimos[i].clave_publica << ",FAILURE!!!," << tiempo_factorizado.count() << endl;
 			}
 
-			cout << "\nTiempo requerido: " << tiempo_factorizado.count() << " us\n";
+			cout << "\nTiempo requerido: " << tiempo_factorizado.count() << " ns\n";
 			
 			//Si encontramos un factor imprimimos por pantalla la factorizacion
 			if(mpz_cmp_ui(p, 0) != 0){

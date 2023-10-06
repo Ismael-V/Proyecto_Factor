@@ -17,3 +17,4 @@ Horas hechadas
 3,5 h instalación de CUDA así como de la librería de números grandes para gráficas
 2 h medidas de tiempo en los benchmarks 64_bits
 2,5 h benchmarks para 16, 32, 48, 64 bits en tres algoritmos distintos
+2 h medidas de tiempo en nanosegundos y calculo de media y desviación típica de hamming vs impar
