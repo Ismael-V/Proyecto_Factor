@@ -19,3 +19,4 @@ Horas hechadas
 2,5 h benchmarks para 16, 32, 48, 64 bits en tres algoritmos distintos
 2 h medidas de tiempo en nanosegundos y calculo de media y desviación típica de hamming vs impar
 2,5 h investigación de métodos para factorizar en caso E(pq) = E(p)E(q)
+5,5 h implementación de un algoritmo para factorizar en Sage y pasada de benchmarks
