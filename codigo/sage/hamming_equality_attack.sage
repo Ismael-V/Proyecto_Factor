@@ -1,3 +1,9 @@
+#Clave publica a atacar
+CLAVE_PUBLICA = 803469022129496566413832787617400811301815554554649653438361
+
+#Longitud en numero de bits de uno de sus factores
+LONGITUD_FACTOR = 100
+
 #Declaramos un cuerpo finito de orden 2
 P.<x> = GF(2)[]
 
@@ -160,13 +166,6 @@ def solve_factor(num, target_deg):
 
     #Devolvemos el resultado de resolver un factor con estos parametros
     return solve_factor_recursive(num, target_deg, x^0, factor_list, 0)
-
-
-#Clave publica a atacar
-CLAVE_PUBLICA = 803469022129496566413832787617400811301815554554649653438361
-
-#Longitud en numero de bits de uno de sus factores
-LONGITUD_FACTOR = 100
 
 #Este es el grado target del polinomio buscado
 GRADO_TARGET = LONGITUD_FACTOR - 1
