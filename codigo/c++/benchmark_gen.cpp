@@ -62,25 +62,32 @@ void generateSemiprimes(FILE* salida, uint16_t bits_p, uint16_t bits_q, uint16_t
             //Los multiplicamos
             mpz_mul(N, p, q);
 
-            //Escribimos el semiprimo resultante en el fichero
-            mpz_out_str(salida, 10, N);
-            fprintf(salida, " ");
-            
-            //Si p < q
-            if(resultado < 0){
-                //Escribimos en el fichero el factor p y su peso
-                mpz_out_str(salida, 10, p);
-                fprintf(salida, " %i\n", mpz_peso_hamming(p));
-            
-            //Si q > p
-            }else{
-                //Escribimos en el fichero el factor q y su peso
-                mpz_out_str(salida, 10, q);
-                fprintf(salida, " %i\n", mpz_peso_hamming(q));
-            }
+            //Si cumple la cuasi-igualdad de los pesos entonces lo guardamos.
+            if(mpz_peso_hamming(N) == mpz_peso_hamming(p)*mpz_peso_hamming(q) - 1){
+                //Escribimos el semiprimo resultante en el fichero
+                mpz_out_str(salida, 10, N);
+                fprintf(salida, " p = ");
+                
+                //Si p < q
+                if(resultado < 0){
+                    //Escribimos en el fichero el factor p y su peso
+                    mpz_out_str(salida, 10, p);
+                    fprintf(salida, ", q = ");
+                    mpz_out_str(salida, 10, q);
+                    fprintf(salida, " %i\n", mpz_peso_hamming(p));
+                
+                //Si q > p
+                }else{
+                    //Escribimos en el fichero el factor q y su peso
+                    mpz_out_str(salida, 10, q);
+                    fprintf(salida, ", q = ");
+                    mpz_out_str(salida, 10, p);
+                    fprintf(salida, " %i\n", mpz_peso_hamming(q));
+                }
 
-            //Como lo anyadimos restamos a cantidad 1
-            cantidad--;
+                //Como lo anyadimos restamos a cantidad 1
+                cantidad--;
+            }
         }
     }
 
