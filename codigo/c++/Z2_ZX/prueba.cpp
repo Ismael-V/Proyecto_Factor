@@ -1,15 +1,19 @@
-#include<iostream>
-#include"Z2_polynomial.h"
+#include <iostream>
+#include "Z2_polynomial.h"
 using namespace std;
 
 int main(){
 
-    Z2_poly polinomio1("100101011101");
-    Z2_poly polinomio2(2);
-    Z2_poly polinomio3 = polinomio1 * polinomio2;
+    Z2_poly<uint8_t> poly_x("100010101000000010100000001");
+    Z2_poly<uint8_t> poly_y("101");
 
-    cout << (string)"(" + polinomio1.to_string() + (string)") * (" + polinomio2.to_string() + (string)") = " + polinomio3.to_string() <<  endl;
-    cout << polinomio2.to_binary_representation() << endl;
+    //std::cout << (poly_x % poly_y).to_string() << std::endl;
+
+    //std::cout << poly_y.to_binary_representation() << std::endl;
+    //std::cout << "(" + poly_y.to_string() + ") >= (" + poly_x.to_string() + ") = " << (poly_y >= poly_x) << std::endl;
+
+    std::cout << poly_x.to_string() << std::endl;
+    std::cout << poly_x.sqrt().to_string() << std::endl;
 
     return 0;
 }
