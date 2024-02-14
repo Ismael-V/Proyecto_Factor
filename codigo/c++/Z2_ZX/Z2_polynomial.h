@@ -13,7 +13,11 @@
  * 
  */
 
-template <std::integral I>
+constexpr uint32_t OCTETO = 8;
+
+template <std::unsigned_integral I> constexpr uint32_t blockSize = sizeof(I)*OCTETO;
+
+template <std::unsigned_integral I>
 class Z2_poly{
     private:
     std::deque<I> polinomio;
@@ -121,7 +125,7 @@ void log_message(std::string message){
 
 //Pre: True
 //Post: Devuelve la posicion del bit mas significativo
-template<std::integral I>
+template<std::unsigned_integral I>
 uint8_t leadingPosition(I num){
 
     //La posicion mas significativa
@@ -162,39 +166,39 @@ uint32_t degreeOfBinaryPolinomialStr(std::string poli){
 
 //Pre: True
 //Post: Devuelve el numero en su representacion binaria
-template<std::integral I>
+template<std::unsigned_integral I>
 std::string numToBinaryString(I num){
 
     //Devolvemos el numero convertido en un bitset del tamanyo del tipo de dato
-    return std::bitset<sizeof(I)*8>(num).to_string();
+    return std::bitset<blockSize<I>>(num).to_string();
 }
 
-//Pre: bin_string.length() <= sizeof(I)*8
+//Pre: bin_string.length() <= blockSize<I>
 //Post: Devuelve el numero representado por la cadena binaria dada
-template<std::integral I>
+template<std::unsigned_integral I>
 I binaryStringToNum(std::string bin_string){
 
     //Devuelve el numero que representa una cadena de bits
-    return static_cast<I>(std::bitset<sizeof(I)*8>(bin_string).to_ullong());
+    return static_cast<I>(std::bitset<blockSize<I>>(bin_string).to_ullong());
 }
 
 //Pre: True
 //Post: Devuelve el grado del polinomio
-template <std::integral I>
+template <std::unsigned_integral I>
 uint32_t Z2_poly<I>::poli_grado() const{
     return this->grado;
 }
 
 //Pre: True
 //Post: Devuelve si el polinomio es 0
-template <std::integral I>
+template <std::unsigned_integral I>
 uint8_t Z2_poly<I>::isZero() const{
     return (this->grado == 0 && this->polinomio[0] == 0);
 }
 
 //Pre: True
 //Post: Devuelve el maximo comun divisor de dos polinomios
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I> mcd(Z2_poly<I> p, Z2_poly<I> q){
 
     //Declaramos tres polinomios
@@ -227,7 +231,7 @@ Z2_poly<I> mcd(Z2_poly<I> p, Z2_poly<I> q){
 
 //Pre: True
 //Post: Genera el polinomio 0
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I>::Z2_poly(){
 
     //El grado de este polinomio es 0
@@ -237,28 +241,45 @@ Z2_poly<I>::Z2_poly(){
 
 //Pre: True
 //Post: Devuelve los bloques internos y el grado
-template <std::integral I>
+template <std::unsigned_integral I>
 std::string Z2_poly<I>::blocks(){
+
+    //Declaramos la cadena de bloques
     std::string blocks = "";
+
+    //Declaramos un indicador del primer bloque
     uint8_t first = 1;
 
+    //Para cada bloque en el polinomio
     for(I b : this->polinomio){
+
+        //Si es el primero
         if(first){
+
+            //Lo escribimos
             blocks += numToBinaryString(b);
+
+            //Ningun bloque posterior será el primero
             first = 0;
+
+        //Si no es el primero
         }else{
+
+            //Escribimos los siguietes bloques con un separador de por medio
             blocks += " : " + numToBinaryString(b);
         }
     }
 
+    //Por último, indicamos el valor de grado interno que posee
     blocks += " | grado --> " + std::to_string(this->grado) + "\n";
 
+    //Devolvemos la cadena generada
     return blocks;
 }
 
 //Pre: True
 //Post: Devuelve el polinomio en formato a_0 + a_1*x + a_2*x^2... en una cadena
-template <std::integral I>
+template <std::unsigned_integral I>
 std::string Z2_poly<I>::to_string() const{
 
     //Declaramos la representacion
@@ -271,7 +292,7 @@ std::string Z2_poly<I>::to_string() const{
     uint8_t inicio = 1;
 
     //Alineamos el grado para sacar los monomios
-    uint32_t aligned_degree = this->grado + sizeof(I)*8 - (this->grado % (sizeof(I)*8)) - 1;
+    uint32_t aligned_degree = this->grado + blockSize<I> - (this->grado % (blockSize<I>)) - 1;
 
     //Para cada bloque de nuestro polinomio
     for(I block : this->polinomio){
@@ -280,27 +301,55 @@ std::string Z2_poly<I>::to_string() const{
         token = numToBinaryString(block);
 
         //Para cada elemento del token
-        for(uint8_t i = 0; i < sizeof(I)*8; i++){
+        for(uint8_t i = 0; i < blockSize<I>; i++){
 
             //Si vale 1 formateamos el polinomio como corresponda
             if(token[i] == '1'){
 
+                //Si es el primer elemento a 1 encontrado
                 if(inicio){
 
+                    //Si el grado es mayor a 1
                     if(aligned_degree > 1){
+
+                        //Escribimos la potencia del monomio que toque
                         representacion += "x^" + std::to_string(aligned_degree);
+
+                    //Si el grado es 1
                     }else if(aligned_degree == 1){
+
+                        //Escribimos el monomio x
                         representacion += "x";
+
+                    //Si el grado es 0
                     }else{
+
+                        //Escribimos la unidad
                         representacion += "1";
                     }
+
+                    //En cualquier caso, el resto de elementos no serán el inicial
                     inicio = 0;
+
+                //Si es el resto de elementos
                 }else{
+
+                    //Si el grado es mayor a 1
                     if(aligned_degree > 1){
+
+                        //Escribimos la potencia del monomio que toque separado por un operador +
                         representacion += " + x^" + std::to_string(aligned_degree);
+
+                    //Si el grado es 1
                     }else if(aligned_degree == 1){
+
+                        //Escribimos el monomio x separado por un operador +
                         representacion += " + x";
+
+                    //Si el grado es 0
                     }else{
+
+                        //Escribimos la unidad separada por un operador +
                         representacion += " + 1";
                     }
                     
@@ -323,38 +372,34 @@ std::string Z2_poly<I>::to_string() const{
 
 //Pre: True
 //Post: Devuelve el polinomio como una cadena binaria de 1s y 0s
-template <std::integral I>
+template <std::unsigned_integral I>
 std::string Z2_poly<I>::to_binary_representation() const{
 
     //Generamos un buffer para reconstruir la cadena
     std::string polinomio_binario = "";
 
-    //Si esta vacio el polinomio
+    //Si esta vacio el polinomio (no deberia ocurrir)
     if(this->polinomio.size() == 0){
+
+        //Devolvemos una cadena vacia
         return polinomio_binario;
     }
 
     //Para cada elemento en el vector
-    //I block : this->polinomio
-    for (typename std::deque<I>::const_iterator iter = this->polinomio.begin(); iter != this->polinomio.end(); ++iter ){
-
-        //std::cout << numToBinaryString(*iter) + " ";
+    for (I block : this->polinomio){
 
         //Añadimos el bloque a la cadena correspondiente
-        polinomio_binario += numToBinaryString(*iter);
+        polinomio_binario += numToBinaryString(block);
+
     }
 
-    //std::cout << std::endl;
-
-    //std::cout << polinomio_binario << std::endl;
-
     //Sacamos el polinomio quitando los 0s sobrantes de delante
-    return polinomio_binario.substr(sizeof(I)*8 - leadingPosition(*this->polinomio.begin()) - 1, this->grado + 1); 
+    return polinomio_binario.substr(blockSize<I> - leadingPosition(*this->polinomio.begin()) - 1, this->grado + 1); 
 }
 
 //Pre: True
 //Post: Multiplica el polinomio por x^n
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::productByMonomial(uint16_t n) const{
 
     //Si el monomio es simplemente 1 o el polinomio es el 0 devolvemos el mismo polinomio
@@ -366,10 +411,10 @@ Z2_poly<I> Z2_poly<I>::productByMonomial(uint16_t n) const{
     I hueco = 0;
 
     //Declaramos el numero de bloques nulos a añadir
-    uint32_t blocks = n / (sizeof(I)*8);
+    uint32_t blocks = n / (blockSize<I>);
 
     //Declaramos el shift que no es trivial
-    uint8_t non_trivial_shift = n % (sizeof(I)*8);
+    uint8_t non_trivial_shift = n % (blockSize<I>);
 
     //Generamos un resultado y dos iteradores, uno de ellos mira una posicion delante del otro
     Z2_poly<I> resultado;
@@ -379,8 +424,8 @@ Z2_poly<I> Z2_poly<I>::productByMonomial(uint16_t n) const{
     //Mientras que haya un shift no trivial
     if(non_trivial_shift != 0){
 
-        //El hueco es como haber realizado el desplazamiento sizeof(I)*8 - non_trivial_shift
-        hueco = *iter >> (sizeof(I)*8 - non_trivial_shift);
+        //El hueco es como haber realizado el desplazamiento blockSize<I> - non_trivial_shift
+        hueco = *iter >> (blockSize<I> - non_trivial_shift);
 
         //Si el hueco no es nulo
         if(hueco != 0){
@@ -399,7 +444,7 @@ Z2_poly<I> Z2_poly<I>::productByMonomial(uint16_t n) const{
             if(next_iter != this->polinomio.end()){
 
                 //Rellenamos lo que falta de la misma forma que en el anterior caso
-                hueco |= *next_iter >> (sizeof(I)*8 - non_trivial_shift);
+                hueco |= *next_iter >> (blockSize<I> - non_trivial_shift);
             }
 
             //Lo añadimos al resultado
@@ -426,7 +471,7 @@ Z2_poly<I> Z2_poly<I>::productByMonomial(uint16_t n) const{
 
 //Pre: True
 //Post: Divide el polinomio por x^n
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::divisionByMonomial(uint16_t n) const{
 
     //Si el monomio es simplemente 1 o el polinomio es el 0 devolvemos el mismo polinomio
@@ -438,15 +483,13 @@ Z2_poly<I> Z2_poly<I>::divisionByMonomial(uint16_t n) const{
     uint32_t size_poli = this->polinomio.size();
 
     //Declaramos el numero de bloques a borrar
-    uint32_t blocks = n / (sizeof(I)*8);
+    uint32_t blocks = n / (blockSize<I>);
 
     //Declaramos el shift que no es trivial
-    uint8_t non_trivial_shift = n % (sizeof(I)*8);
+    uint8_t non_trivial_shift = n % (blockSize<I>);
 
     //Generamos un resultado
     Z2_poly<I> resultado = *this;
-
-    //std::cout << resultado.blocks();
 
     //Si quedan bloques por borrar
     while(blocks > 0){
@@ -457,13 +500,13 @@ Z2_poly<I> Z2_poly<I>::divisionByMonomial(uint16_t n) const{
             //Borramos el ultimo elemento
             resultado.polinomio.pop_back();
 
-            //std::cout << resultado.blocks();
-
             //Eliminamos 1 al numero de bloques del polinomio
             size_poli--;
+
+        //Si nos quedamos sin bloques
         }else{
 
-            //Si nos quedamos sin bloques, es el polinomio 0
+            //Devolvemos el polinomio 0
             return Z2_poly("0");
         }
 
@@ -485,15 +528,11 @@ Z2_poly<I> Z2_poly<I>::divisionByMonomial(uint16_t n) const{
             //Aplicamos el shift a derechas
             *iter = *iter >> non_trivial_shift;
 
-            //std::cout << resultado.blocks();
-
             //Si hay un elemento en la siguiente posicion
             if(next_iter != resultado.polinomio.rend()){
 
                 //Realizamos el shift contrario y hacemos una o logica sobre el iterador
-                *iter |= *next_iter << (sizeof(I)*8 - non_trivial_shift);
-
-                //std::cout << resultado.blocks();
+                *iter |= *next_iter << (blockSize<I> - non_trivial_shift);
             }
 
         }
@@ -501,8 +540,6 @@ Z2_poly<I> Z2_poly<I>::divisionByMonomial(uint16_t n) const{
         //Si el size es mayor que 1 y el primer bloque se quedo a 0, lo borramos
         if(size_poli > 1 && resultado.polinomio[0] == 0){
             resultado.polinomio.pop_front();
-
-            //std::cout << resultado.blocks();
         }
 
     }
@@ -514,25 +551,21 @@ Z2_poly<I> Z2_poly<I>::divisionByMonomial(uint16_t n) const{
         resultado.grado = 0;
     }
 
-    //std::cout << resultado.blocks();
-    
     //Devolvemos el resultado
     return resultado;
 }
 
 //Pre: La cadena esta compuesta de 1s y 0s
 //Post: Genera un polinomio con los correspondientes elementos.
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I>::Z2_poly(std::string cadena_de_bits){
 
     //Calculamos el grado a partir del numero en formato de cadena binaria
     this->grado = degreeOfBinaryPolinomialStr(cadena_de_bits);
 
-    //std::cout << this->grado << std::endl;
-
     //Calculamos la longitud y el sobrante dependiendo del tamaño de los bloques
     uint32_t longitud = cadena_de_bits.length();
-    uint8_t sobrante = longitud % (sizeof(I)*8);
+    uint8_t sobrante = longitud % (blockSize<I>);
 
     //Declaramos un numero del tamaño concreto, un token y un detector de patron
     I num;
@@ -544,8 +577,6 @@ Z2_poly<I>::Z2_poly(std::string cadena_de_bits){
 
         //Extraemos el sobrante
         token = cadena_de_bits.substr(0, sobrante);
-
-        //std::cout << token << " ";
 
         //Lo convertimos a numero
         num = binaryStringToNum<I>(token);
@@ -563,12 +594,10 @@ Z2_poly<I>::Z2_poly(std::string cadena_de_bits){
     }
 
     //Para el resto de la cadena
-    for(uint32_t i = sobrante; i < longitud; i += sizeof(I)*8){
+    for(uint32_t i = sobrante; i < longitud; i += blockSize<I>){
 
         //Tomamos un token del tamaño de bloque en cuestion
-        token = cadena_de_bits.substr(i, sizeof(I)*8);
-
-        //std::cout << token << " ";
+        token = cadena_de_bits.substr(i, blockSize<I>);
 
         //Lo convertimos a numero
         num = binaryStringToNum<I>(token);
@@ -582,14 +611,12 @@ Z2_poly<I>::Z2_poly(std::string cadena_de_bits){
             //El resto que queda es polinomio
             pattern = 1;
         }
-    }
-
-    //std::cout << std::endl;   
+    }  
 }
 
 //Pre: True
 //Post: Devuelve la suma de dos polinomios en Z2_Z
-template<std::integral I>
+template<std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
 
     //Calculamos la cantidad de elementos bloque que posee cada polinomio
@@ -602,8 +629,6 @@ Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
 
     //Generamos un resultado
     Z2_poly<I> resultado;
-
-    //std::cout << size_x << ", " << size_y << std::endl;
 
     //Si hay mas elementos en nuestro polinomio que en el sumando
     if(size_x > size_y){
@@ -659,39 +684,34 @@ Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
     
     //Si tienen el mismo numero de elementos
     }else{
+        
+        //Generamos un bloque suma
+        I bloque_suma = 0;
+
+        //Generamos un flag que nos indica si se ha encontrado el primer bloque no nulo
+        uint8_t firstNotNull = 0;
 
         //Mientras que queden elementos por sumar
         for(; iter_x != this->polinomio.end(); ++iter_x, ++iter_y){
 
-            //std::cout << numToBinaryString<I>((*iter_x)) << " xor " << numToBinaryString<I>((*iter_y)) << " --> " << numToBinaryString<I>((*iter_x) ^ (*iter_y));
-            //std::cout << " - ";
-
             //Realizamos la suma con una XOR
-            resultado.polinomio.push_back((*iter_x) ^ (*iter_y));
-        }
+            bloque_suma = (*iter_x) ^ (*iter_y);
 
-        //std::cout << resultado.to_binary_representation() << std::endl;
+            //Si el bloque suma es no nulo o se ha encontrado el primer bloque no nulo o solo queda un bloque
+            if(firstNotNull || bloque_suma != 0 || size_x == 1){
 
-        //Sacamos un iterador al principio del resultado
-        typename std::deque<I>::iterator iter_r = resultado.polinomio.begin();
+                //Metemos el resultado
+                resultado.polinomio.push_back(bloque_suma);
+            }else{
 
-        //Mientras queden bloque vacios
-        while(*iter_r == 0 && size_x > 1){
-
-            //std::cout << numToBinaryString(*iter_x) + " ";
-
-            //Avanzamos el iterador
-            ++iter_r;
-
-            //Eliminamos el elemento vacio
-            resultado.polinomio.pop_front();
-
-            //Reducimos en 1 el numero de bloques restantes
-            size_x--;
+                //Restamos en 1 el numero de bloques
+                size_x--;
+            }
+            
         }
 
         //El grado es la suma del coeficiente director mas la posicion del coeficiente mas significativo
-        resultado.grado = leadingPosition(*iter_r) + (size_x - 1)*sizeof(I)*8;
+        resultado.grado = leadingPosition(resultado.polinomio[0]) + (size_x - 1)*blockSize<I>;
 
     }
 
@@ -701,7 +721,7 @@ Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
 
 //Pre: True
 //Post: Devuelve el producto de dos polinomios en Z2_Z
-template<std::integral I>
+template<std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::operator*(const Z2_poly& factor) const{
 
     //Generamos el polinomio 0
@@ -714,7 +734,7 @@ Z2_poly<I> Z2_poly<I>::operator*(const Z2_poly& factor) const{
     std::string token = "";
 
     //Alineamos el grado para realizar el producto
-    uint32_t aligned_degree = this->grado + sizeof(I)*8 - (this->grado % (sizeof(I)*8)) - 1;
+    uint32_t aligned_degree = this->grado + blockSize<I> - (this->grado % (blockSize<I>)) - 1;
 
     //Para cada elemento de nuestro polinomio
     for(; iter != this->polinomio.end(); ++iter){
@@ -722,23 +742,15 @@ Z2_poly<I> Z2_poly<I>::operator*(const Z2_poly& factor) const{
         //Convertimos el elemento en una cadena de bits
         token = numToBinaryString(*iter);
 
-        //std::cout << token << "\n";
-
         //Para cada elemento de la cadena de bits
-        for(uint8_t i = 0; i < sizeof(I)*8; i++){
-
-            //std::cout << aligned_degree << std::endl;
+        for(uint8_t i = 0; i < blockSize<I>; i++){
 
             //Si encontramos un bit a 1
             if (token[i] == '1'){
-                //std::cout << factor.productByMonomial(aligned_degree).to_binary_representation() << std::endl;
 
                 //Sumamos el factor multiplicado por el monomio adecuado
                 product = product + factor.productByMonomial(aligned_degree);
 
-                //std::cout << factor.productByMonomial(aligned_degree).to_binary_representation() << std::endl;
-                
-                //std::cout << product.to_binary_representation() << std::endl;
             }
 
             //Reducimos en 1 el grado
@@ -755,7 +767,7 @@ Z2_poly<I> Z2_poly<I>::operator*(const Z2_poly& factor) const{
 
 //Pre: divisor != 0
 //Post: Devuelve la division entera de un polinomio por el divisor
-template<std::integral I>
+template<std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::operator/(const Z2_poly& divisor) const{
 
     //Declaramos un dividendo, una unidad y un resultado
@@ -786,8 +798,9 @@ Z2_poly<I> Z2_poly<I>::operator/(const Z2_poly& divisor) const{
 
 //Pre: divisor != 0
 //Post: Devuelve el resto de dividir un polinomio por el divisor
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::operator%(const Z2_poly& divisor) const{
+
     //Declaramos un dividendo, una unidad y un resultado
     Z2_poly<I> dividendo = *this;
 
@@ -811,7 +824,7 @@ Z2_poly<I> Z2_poly<I>::operator%(const Z2_poly& divisor) const{
 
 //Pre: True
 //Post: Comprueba si los polinomios son iguales
-template <std::integral I>
+template <std::unsigned_integral I>
 bool Z2_poly<I>::operator==(const Z2_poly& otro) const{
 
     //Si el grado no coincide
@@ -844,7 +857,7 @@ bool Z2_poly<I>::operator==(const Z2_poly& otro) const{
 
 //Pre: True
 //Post: Comprueba si los polinomios son distintos
-template <std::integral I>
+template <std::unsigned_integral I>
 bool Z2_poly<I>::operator!=(const Z2_poly& otro) const{
     
     //Si el grado no coincide
@@ -878,7 +891,7 @@ bool Z2_poly<I>::operator!=(const Z2_poly& otro) const{
 
 //Pre: True
 //Post: Comprueba si este polinomio es mayor que el comprobado
-template <std::integral I>
+template <std::unsigned_integral I>
 bool Z2_poly<I>::operator>(const Z2_poly& otro) const{
 
     //Si el grado de nuestro polinomio es mayor que el otro
@@ -924,7 +937,7 @@ bool Z2_poly<I>::operator>(const Z2_poly& otro) const{
 
 //Pre: True
 //Post: Comprueba si este polinomio es mayor o igual que el comprobado
-template <std::integral I>
+template <std::unsigned_integral I>
 bool Z2_poly<I>::operator>=(const Z2_poly& otro) const{
 
     //Si el grado de nuestro polinomio es mayor que el otro
@@ -969,7 +982,7 @@ bool Z2_poly<I>::operator>=(const Z2_poly& otro) const{
 
 //Pre: True
 //Post: Comprueba si este polinomio es menor que el comprobado
-template <std::integral I>
+template <std::unsigned_integral I>
 bool Z2_poly<I>::operator<(const Z2_poly& otro) const{
 
     //Si el grado de nuestro polinomio es mayor que el otro
@@ -1015,7 +1028,7 @@ bool Z2_poly<I>::operator<(const Z2_poly& otro) const{
 
 //Pre: True
 //Post: Comprueba si este polinomio es menor o igual que el comprobado
-template <std::integral I>
+template <std::unsigned_integral I>
 bool Z2_poly<I>::operator<=(const Z2_poly& otro) const{
 
     //Si el grado de nuestro polinomio es mayor que el otro
@@ -1061,13 +1074,11 @@ bool Z2_poly<I>::operator<=(const Z2_poly& otro) const{
 
 //Pre: True
 //Post: Devuelve la derivada formal del polinomio
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::formerDerivative() const{
 
     //Generamos el resultado
     Z2_poly<I> derivada = this->divisionByMonomial(1);
-
-    //std::cout << derivada.blocks();
 
     //Calculamos el numero de bloques
     uint32_t size_poli = derivada.polinomio.size(); 
@@ -1087,22 +1098,26 @@ Z2_poly<I> Z2_poly<I>::formerDerivative() const{
     //Aplicamos la mascara a cada elemento
     for(; iter != derivada.polinomio.end(); ++iter){
         *iter &= mascara;
-        //std::cout << derivada.blocks();
     }
 
-    //Borramos los bloques nulos
+    //Volvemos a apuntar al principio del polinomio
     iter = derivada.polinomio.begin();
 
+    //Mientras quede más de un bloque y sean vacios
     while(*iter == 0 && size_poli > 1){
+
+        //Avanzamos el iterador
         ++iter;
+
+        //Borramos el bloque vacio
         derivada.polinomio.pop_front();
-        //std::cout << derivada.blocks();
+
+        //Decrementamos el tamaño
         size_poli--;
     }
     
     //El grado es la suma del coeficiente director mas la posicion del coeficiente mas significativo
-    derivada.grado = leadingPosition(*iter) + (size_poli - 1)*sizeof(I)*8;
-    //std::cout << derivada.blocks();
+    derivada.grado = leadingPosition(*iter) + (size_poli - 1)*blockSize<I>;
 
     //Devolvemos la derivada formal
     return derivada;
@@ -1110,11 +1125,11 @@ Z2_poly<I> Z2_poly<I>::formerDerivative() const{
 
 //Pre: True
 //Post: Devuelve la raiz cuadrada entera del polinomio
-template <std::integral I>
+template <std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::sqrt() const{
 
     //Sacamos el grado alineado y el ultimo indice
-    uint32_t aligned_degree = this->grado + sizeof(I)*8 - (this->grado % (sizeof(I)*8)) - 1;
+    uint32_t aligned_degree = this->grado + blockSize<I> - (this->grado % (blockSize<I>)) - 1;
     uint32_t last_index = aligned_degree;
 
     //Generamos una cadena vacia de 0s
@@ -1130,7 +1145,7 @@ Z2_poly<I> Z2_poly<I>::sqrt() const{
         token = numToBinaryString(b);
 
         //Para cada elemento del token
-        for(uint8_t i = 0; i < sizeof(I)*8; i++){
+        for(uint8_t i = 0; i < blockSize<I>; i++){
 
             //Si uno de los elementos es 1
             if(token[i] == '1'){
