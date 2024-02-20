@@ -92,6 +92,10 @@ class Z2_poly{
     bool operator<=(const Z2_poly& otro) const;
 
     //Pre: True
+    //Post: Devuelve el coeficiente del monomio x^n en este polinomio
+    bool operator[](std::size_t index) const;
+
+    //Pre: True
     //Post: Devuelve la derivada formal del polinomio
     Z2_poly<I> formerDerivative() const;
 
@@ -102,6 +106,10 @@ class Z2_poly{
     //Pre: True
     //Post: Devuelve el grado del polinomio
     uint32_t poli_grado() const;
+
+    //Pre: True
+    //Post: Devuelve el grado del monomio de menor grado de dicho polinomio
+    uint32_t min_grado() const;
 
     //Pre: True
     //Post: Devuelve si el polinomio es 0
@@ -140,6 +148,28 @@ uint8_t leadingPosition(I num){
 
     //Devuelve la posicion del bit mas significativo
     return leadingPos;
+}
+
+//Pre: True
+//Post: Devuelve la posicion del bit menos significativo
+template<std::unsigned_integral I>
+uint8_t independentPosition(I num){
+
+    //La posicion mas significativa
+    uint8_t independentPosition = 0;
+
+    //Mientras que al dividir por 2 no se haga cero
+    do{
+
+        //Suma 1 al valor
+        independentPosition++;
+
+        //Si el ultimo bit es 1 devolvemos la posicion
+        if(num & 1) return independentPosition;
+    }while(num >>= 1);
+
+    //Devuelve cero de no encontrarlo
+    return 0;
 }
 
 //Pre: True
@@ -187,6 +217,21 @@ I binaryStringToNum(std::string bin_string){
 template <std::unsigned_integral I>
 uint32_t Z2_poly<I>::poli_grado() const{
     return this->grado;
+}
+
+//Pre: True
+//Post: Devuelve el grado del monomio de menor grado de dicho polinomio
+template <std::unsigned_integral I>
+uint32_t Z2_poly<I>::min_grado() const{
+    typename std::deque<I>::const_reverse_iterator riter = this->polinomio.rbegin();
+    uint32_t grado = 0;
+    for(; riter != this->polinomio.rend(); ++riter, grado += blockSize<I>){
+        if(*riter != 0){
+            return grado + independentPosition(*iter);
+        }
+    }
+
+    return 0;
 }
 
 //Pre: True
@@ -1176,6 +1221,31 @@ Z2_poly<I> Z2_poly<I>::sqrt() const{
 
     //Devolvemos el polinomio resultante
     return Z2_poly(binarySqrt);
+}
+
+//Pre: True
+//Post: Devuelve el coeficiente del monomio x^n en este polinomio
+template<std::unsigned_integral I>
+bool Z2_poly<I>::operator[](std::size_t index) const{
+
+    //Declaramos el tamaño del polinomio
+    uint32_t size = this->polinomio.size();
+
+    //Declaramos el bloque que indexar
+    uint32_t block = index / blockSize<I>;
+
+    //Declaramos la mascara a utilizar
+    I mascara = 1 << (index % blockSize<I>);
+
+    //Si el bloque esta en rango
+    if(block < size){
+
+        //Devolvemos si el bit esta puesto a 1
+        return (this->polinomio[size - block - 1] & mascara);
+    }
+
+    //Si esta fuera de rango devolvemos 0
+    return false;
 }
 
 #endif
