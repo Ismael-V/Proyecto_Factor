@@ -1,21 +1,39 @@
 #include <iostream>
+#include<gmp.h>
 #include "Z2_linear_solver.hpp"
 using namespace std;
 
+#define CLAVE_PUBLICA "803469022129496566413832787617400811301815554554649653438361"
+
 int main(){
 
-    Z2_poly<uint8_t> poly_x("100010101000000010100000001");
-    Z2_poly<uint8_t> poly_y("100010101000000010100000001");
+    mpz_t clave_publica;
+    mpz_init(clave_publica);
+    mpz_set_str(clave_publica, CLAVE_PUBLICA, 10);
 
-    //std::cout << (poly_x % poly_y).to_string() << std::endl;
+    char binary_representation[1024];
 
-    //std::cout << poly_y.to_binary_representation() << std::endl;
-    //std::cout << "(" + poly_y.to_string() + ") >= (" + poly_x.to_string() + ") = " << (poly_y >= poly_x) << std::endl;
+    mpz_get_str(binary_representation, 2, clave_publica);
 
-    Z2_Linear_Solver<uint8_t>(Z2_poly<uint8_t>("110001")).solve_linear();
+    Z2_poly<uint64_t> clave_polinomica(binary_representation);
 
-    //std::cout << poly_x.to_string() << std::endl;
-    //std::cout << (poly_x + poly_y).to_string() << std::endl;
+    std::vector<Z2_poly<uint64_t>> factores = {};
+
+    berlekamp_factorize(clave_polinomica, factores);
+
+    std::sort(factores.begin(), factores.end(), [](Z2_poly<uint64_t> a, Z2_poly<uint64_t> b) {return a < b;});
+
+    Z2_poly<uint64_t> resultado("1");
+
+    for(Z2_poly<uint64_t> factor : factores){
+        std::cout << factor.to_string() << std::endl;
+        resultado = resultado * factor;
+    }
+
+    std::cout << resultado.to_string() << std::endl;
+
+    std::cout << "Original  : " << binary_representation << std::endl;
+    std::cout << "Calculado : " << resultado.to_binary_representation() << std::endl;
 
     return 0;
 }

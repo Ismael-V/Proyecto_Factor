@@ -158,14 +158,18 @@ uint8_t independentPosition(I num){
     //La posicion mas significativa
     uint8_t independentPosition = 0;
 
+    if(num == 0){
+        return 0;
+    }
+
     //Mientras que al dividir por 2 no se haga cero
     do{
+        //Si el ultimo bit es 1 devolvemos la posicion
+        if(num & 1) return independentPosition;
 
         //Suma 1 al valor
         independentPosition++;
 
-        //Si el ultimo bit es 1 devolvemos la posicion
-        if(num & 1) return independentPosition;
     }while(num >>= 1);
 
     //Devuelve cero de no encontrarlo
@@ -227,7 +231,7 @@ uint32_t Z2_poly<I>::min_grado() const{
     uint32_t grado = 0;
     for(; riter != this->polinomio.rend(); ++riter, grado += blockSize<I>){
         if(*riter != 0){
-            return grado + independentPosition(*iter);
+            return grado + independentPosition(*riter);
         }
     }
 
@@ -747,6 +751,9 @@ Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
 
                 //Metemos el resultado
                 resultado.polinomio.push_back(bloque_suma);
+
+                //El primer bloque no nulo fue encontrado
+                firstNotNull = 1;
             }else{
 
                 //Restamos en 1 el numero de bloques
