@@ -15,17 +15,17 @@ int main(){
 
     mpz_get_str(binary_representation, 2, clave_publica);
 
-    Z2_poly<uint64_t> clave_polinomica(binary_representation);
+    Z2_poly<uint32_t> clave_polinomica(binary_representation);
 
-    std::vector<Z2_poly<uint64_t>> factores = {};
+    std::vector<Z2_poly<uint32_t>> factores = {};
 
     berlekamp_factorize(clave_polinomica, factores);
 
-    std::sort(factores.begin(), factores.end(), [](Z2_poly<uint64_t> a, Z2_poly<uint64_t> b) {return a < b;});
+    std::sort(factores.begin(), factores.end(), [](Z2_poly<uint32_t> a, Z2_poly<uint32_t> b) {return a < b;});
 
-    Z2_poly<uint64_t> resultado("1");
+    Z2_poly<uint32_t> resultado("1");
 
-    for(Z2_poly<uint64_t> factor : factores){
+    for(Z2_poly<uint32_t> factor : factores){
         std::cout << factor.to_string() << std::endl;
         resultado = resultado * factor;
     }
