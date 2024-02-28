@@ -155,25 +155,22 @@ uint8_t leadingPosition(I num){
 template<std::unsigned_integral I>
 uint8_t independentPosition(I num){
 
-    //La posicion mas significativa
-    uint8_t independentPosition = 0;
+    //Si el numero es nulo la posicion independiente es 0
+    if(num == 0) return 0;
 
-    if(num == 0){
-        return 0;
-    }
+    //Declaramos la posicion independiente reversa
+    uint8_t reversedIndependentPosition = 1;
 
-    //Mientras que al dividir por 2 no se haga cero
-    do{
-        //Si el ultimo bit es 1 devolvemos la posicion
-        if(num & 1) return independentPosition;
+    //Mientras que al multiplicar por 2 no desborde a 0
+    while(num <<= 1){
 
         //Suma 1 al valor
-        independentPosition++;
+        reversedIndependentPosition++;
 
-    }while(num >>= 1);
+    }
 
-    //Devuelve cero de no encontrarlo
-    return 0;
+    //Devuelve tamaño de bloque menos la posicion independiente reversa
+    return blockSize<I> - reversedIndependentPosition;
 }
 
 //Pre: True
@@ -227,14 +224,25 @@ uint32_t Z2_poly<I>::poli_grado() const{
 //Post: Devuelve el grado del monomio de menor grado de dicho polinomio
 template <std::unsigned_integral I>
 uint32_t Z2_poly<I>::min_grado() const{
+
+    //Declaramos un iterador reverso de deque
     typename std::deque<I>::const_reverse_iterator riter = this->polinomio.rbegin();
+
+    //Este es el grado
     uint32_t grado = 0;
+
+    //Mientras que el iterador no alcanze el final del polinomio
     for(; riter != this->polinomio.rend(); ++riter, grado += blockSize<I>){
+
+        //Si el bloque apuntado no es 0
         if(*riter != 0){
+
+            //Devolvemos el grado acumulado mas la posicion independiente del primer 1
             return grado + independentPosition(*riter);
         }
     }
 
+    //Si ningun bloque vale algo distinto de 0 es que el grado minimo es 0
     return 0;
 }
 
@@ -242,6 +250,8 @@ uint32_t Z2_poly<I>::min_grado() const{
 //Post: Devuelve si el polinomio es 0
 template <std::unsigned_integral I>
 uint8_t Z2_poly<I>::isZero() const{
+
+    //Devuelve si el grado es 0 y el primer elemento es el 0
     return (this->grado == 0 && this->polinomio[0] == 0);
 }
 
@@ -452,7 +462,7 @@ template <std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::productByMonomial(uint16_t n) const{
 
     //Si el monomio es simplemente 1 o el polinomio es el 0 devolvemos el mismo polinomio
-    if(n == 0 || (this->grado == 0 && this->polinomio[0] == 0)){
+    if(n == 0 || this->isZero()){
         return *this;
     }
 
@@ -524,7 +534,7 @@ template <std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::divisionByMonomial(uint16_t n) const{
 
     //Si el monomio es simplemente 1 o el polinomio es el 0 devolvemos el mismo polinomio
-    if(n == 0 || (this->grado == 0 && this->polinomio[0] == 0)){
+    if(n == 0 || this->isZero()){
         return *this;
     }
 
@@ -776,6 +786,9 @@ Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
 template<std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::operator*(const Z2_poly& factor) const{
 
+    //Si el factor o el polinomio son 0 devolvemos el polinomio 0
+    if(this->isZero() || factor.isZero()) return factor;
+
     //Generamos el polinomio 0
     Z2_poly<I> product("0");
 
@@ -844,6 +857,8 @@ Z2_poly<I> Z2_poly<I>::operator/(const Z2_poly& divisor) const{
         grado_dividendo = dividendo.grado;
     }
 
+    //std::cout << this->to_string() << " / " << divisor.to_string() << " = " << resultado.to_string() << std::endl;
+
     //Devolvemos el cociente
     return resultado;
 }
@@ -869,6 +884,8 @@ Z2_poly<I> Z2_poly<I>::operator%(const Z2_poly& divisor) const{
         //Calculamos el nuevo grado de nuestro polinomio
         grado_dividendo = dividendo.grado;
     }
+
+    //std::cout << this->to_string() << " % " << divisor.to_string() << " = " << dividendo.to_string() << std::endl;
 
     //Devolvemos el resto
     return dividendo;
@@ -915,7 +932,7 @@ bool Z2_poly<I>::operator!=(const Z2_poly& otro) const{
     //Si el grado no coincide
     if(this->grado != otro.grado){
 
-        //No son iguales
+        //Son distintos
         return true;
     }
 
@@ -931,12 +948,12 @@ bool Z2_poly<I>::operator!=(const Z2_poly& otro) const{
         //Si alguno es distinto
         if(*iter_x != *iter_y){
 
-            //No son iguales
+            //Son distintos
             return true;
         }
     }
 
-    //Son iguales
+    //No son distintos
     return false;
 
 }
@@ -1132,17 +1149,21 @@ Z2_poly<I> Z2_poly<I>::formerDerivative() const{
     //Generamos el resultado
     Z2_poly<I> derivada = this->divisionByMonomial(1);
 
+    //std::cout << "Parte derivada: " << derivada.to_string() << std::endl;
+
     //Calculamos el numero de bloques
     uint32_t size_poli = derivada.polinomio.size(); 
 
     //Usamos un patron para borrar factores impares
-    uint8_t patron = 0b01010101;
+    I patron = 0b01010101;
     I mascara = 0;
 
     //Generamos la mascara especifica
     for(uint8_t i = 0; i < sizeof(I); i++){
         mascara |= patron << (i << 3);
     }
+
+    //std::cout << "Mascara derivadora: " << numToBinaryString<I>(mascara) << " tamaño: " << sizeof(I) << std::endl;
 
     //Declaramos un iterador a nuestro polinomio
     typename std::deque<I>::iterator iter = derivada.polinomio.begin();
@@ -1242,7 +1263,7 @@ bool Z2_poly<I>::operator[](std::size_t index) const{
     uint32_t block = index / blockSize<I>;
 
     //Declaramos la mascara a utilizar
-    I mascara = 1 << (index % blockSize<I>);
+    I mascara = (I)1 << (index % blockSize<I>);
 
     //Si el bloque esta en rango
     if(block < size){

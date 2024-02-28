@@ -385,6 +385,8 @@ void berlekamp_factorize(Z2_poly<I> poly, std::vector<Z2_poly<I>>& irreducibles)
 
     //Calculamos la derivada y el maximo comun divisor de esta y el polinomio original
     Z2_poly<I> derivada = poly.formerDerivative();
+
+    //std::cout << "Derivada: " << derivada.to_string() << std::endl;
     Z2_poly<I> squared_factors = mcd(poly, derivada);
 
     //std::cout << poly.to_string() << std::endl;
@@ -411,6 +413,8 @@ void berlekamp_factorize(Z2_poly<I> poly, std::vector<Z2_poly<I>>& irreducibles)
     //Si el maximo comun divisor es 1
     }else if(squared_factors.poli_grado() == 0){
         //std::cout << "Es libre de cuadrados\n";
+
+        //std::cout << poly.to_string() << std::endl;
 
         //Aplicamos el resolvedor al polinomio
         Z2_poly<I> non_trivial_factor = Z2_Linear_Solver<I>(poly).solve_linear();
