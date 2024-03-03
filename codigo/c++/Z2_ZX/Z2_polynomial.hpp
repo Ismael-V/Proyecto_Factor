@@ -122,6 +122,10 @@ class Z2_poly{
     //Pre: True
     //Post: Devuelve el polinomio como una cadena binaria de 1s y 0s
     std::string to_binary_representation() const;
+
+    //Pre: True
+    //Post: Devuelve un puntero a un array de polinomio en Z2 inicializados
+    static Z2_poly<I>* z2polyArray(uint32_t elems, std::string num);
 };
 
 //Pre: True
@@ -1274,6 +1278,27 @@ bool Z2_poly<I>::operator[](std::size_t index) const{
 
     //Si esta fuera de rango devolvemos 0
     return false;
+}
+
+//Pre: True
+//Post: Devuelve un puntero a un array de polinomio en Z2 inicializados
+template<std::unsigned_integral I>
+Z2_poly<I>* Z2_poly<I>::z2polyArray(uint32_t elems, std::string num){
+    //Generamos un puntero para el array de polinomios a alojar
+    Z2_poly<I>* poly_alojado = new Z2_poly<I>[elems];
+
+    //Inicializamos un polinomio num
+    Z2_poly<I> poly_num(num);
+
+    //Para cada elemento del array
+    for(uint32_t i = 0; i < elems; i++){
+
+        //Escribimos el polinomio indicado
+        poly_alojado[i] = poly_num;
+    }
+
+    //Devolvemos el puntero
+    return poly_alojado;
 }
 
 #endif

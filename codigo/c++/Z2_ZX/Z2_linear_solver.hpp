@@ -144,7 +144,7 @@ Z2_Linear_Solver<I>::Z2_Linear_Solver(Z2_poly<I> generator) : generador(generato
     std::vector<std::string> matrizBinaria(grado, "");
  
     //Declaramos la posicion de la identidad
-    uint32_t identity = grado - 1;
+    int32_t identity = grado - 1;
 
     //Para cada una de las potencias generadas
     for(Z2_poly<I> p : potencias){
@@ -226,7 +226,7 @@ Z2_poly<I> Z2_Linear_Solver<I>::solve_linear(){
         //std::cout << "Grado target: " << grados << std::endl;
 
         //Mientras que el grado del polinomio ahora apuntado sea menor a grados
-        while(grados > iter->poli_grado()){
+        while(grados > (int32_t)iter->poli_grado()){
             //std::cout << "Falta grado -> " << grados << std::endl;
 
             //Significa que falta el grado indicado por grados, asi que lo añadimos
