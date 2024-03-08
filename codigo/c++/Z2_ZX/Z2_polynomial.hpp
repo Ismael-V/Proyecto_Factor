@@ -683,7 +683,7 @@ Z2_poly<I>::Z2_poly(std::string cadena_de_bits){
 template<std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
 
-    Profiler P("Suma Polinomios");
+    Profiler ("Suma Polinomios");
 
     //Calculamos la cantidad de elementos bloque que posee cada polinomio
     uint32_t size_x = this->polinomio.size();

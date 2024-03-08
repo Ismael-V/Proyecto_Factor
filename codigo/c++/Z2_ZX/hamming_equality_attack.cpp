@@ -179,7 +179,7 @@ int main(){
     //Mide el tiempo al finalizar todo
     std::chrono::time_point<std::chrono::high_resolution_clock> final = std::chrono::high_resolution_clock::now();
 
-    std::cout << "\nTime elapsed: " << (final - principio).count() << " ns ==> " << (final - principio).count()/10e9f << " s\n";
+    std::cout << "\nTime elapsed: " << (final - principio).count() << " ns ==> " << (final - principio).count()/10e9f << " s\n\n";
 
     Profiler();
 
