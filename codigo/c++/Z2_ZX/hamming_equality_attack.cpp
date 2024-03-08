@@ -23,6 +23,9 @@ uint32_t grados_target[] = {99, 200, 300, 403, 511, 511, 512};
 //Pre: True
 //Post: Devuelve, de proveerle del grado target adecuado uno de los factores del numero, de encontrarlo
 void solve_factor(std::vector<Z2_poly<U_TYPE>>& factores, uint32_t grado_target, const mpz_t N, mpz_t& factor){
+
+    Profiler ("Search Factor");
+
     mpz_t num_guess;
     mpz_init(num_guess);
 
@@ -177,6 +180,8 @@ int main(){
     std::chrono::time_point<std::chrono::high_resolution_clock> final = std::chrono::high_resolution_clock::now();
 
     std::cout << "\nTime elapsed: " << (final - principio).count() << " ns ==> " << (final - principio).count()/10e9f << " s\n";
+
+    Profiler();
 
     //Liberamos la memoria
     mpz_clears(clave_publica, p , NULL);

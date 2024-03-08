@@ -205,6 +205,8 @@ Z2_poly<I> Z2_Linear_Solver<I>::solve_linear(){
 
     //this->printMatrix();
 
+    Profiler ("Solver");
+
     //Declaramos un iterador y el iterador siguiente
     typename std::vector<Z2_matrix_row<I>>::iterator iter = this->matriz.begin();
     typename std::vector<Z2_matrix_row<I>>::iterator next_iter;
@@ -379,6 +381,8 @@ Z2_poly<I> Z2_Linear_Solver<I>::solve_linear(){
 //Post: Factoriza en irreducibles el polinomio dado
 template<std::unsigned_integral I>
 void berlekamp_factorize(Z2_poly<I> poly, std::vector<Z2_poly<I>>& irreducibles){
+
+    Profiler ("Berlekamp");
 
     //Si el grado es 0 vuelve
     if(poly.poli_grado() == 0) return;

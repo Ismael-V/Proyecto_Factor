@@ -6,6 +6,7 @@
 #include <string>
 #include <deque>
 #include <bitset>
+#include "Profiler.hpp"
 
 /*
  * Los polinomios internamente se representan en bloques de bits que van del mas significativo hacia
@@ -681,6 +682,8 @@ Z2_poly<I>::Z2_poly(std::string cadena_de_bits){
 //Post: Devuelve la suma de dos polinomios en Z2_Z
 template<std::unsigned_integral I>
 Z2_poly<I> Z2_poly<I>::operator+(const Z2_poly<I>& sumando) const{
+
+    Profiler P("Suma Polinomios");
 
     //Calculamos la cantidad de elementos bloque que posee cada polinomio
     uint32_t size_x = this->polinomio.size();
