@@ -2,6 +2,7 @@
 #include <chrono>
 #include <gmp.h>
 #include "Z2_linear_solver.hpp"
+#include "Z2_decarrier.hpp"
 using namespace std;
 
 #define U_TYPE uint64_t
@@ -133,16 +134,8 @@ void solve_factor(std::vector<Z2_poly<U_TYPE>>& factores, uint32_t grado_target,
 
 }
 
-int main(){
-
-    //Declaramos una clave pública y un factor
-    mpz_t clave_publica, p;
-    mpz_inits(clave_publica, p, NULL);
-
-
-    //Mide el tiempo ahora
-    std::chrono::time_point<std::chrono::high_resolution_clock> principio = std::chrono::high_resolution_clock::now();
-
+static inline
+void test_equality_attack(mpz_t &clave_publica, mpz_t &p){
     //Para todas las claves definidas
     for(uint32_t i = 0; i < 7; i++){
 
@@ -175,6 +168,74 @@ int main(){
         mpz_out_str(stdout, 10, p);
         std::cout << std::endl;
     }
+}
+
+static inline
+void test_n_carry_attack(mpz_t &clave_publica, mpz_t &p, std::string key, uint32_t carrys, uint32_t bin_size){
+    //Colocamos el valor de la clave
+    mpz_set_str(clave_publica, key.c_str(), 10);
+
+    //Declaramos un array donde almacenaremos la representacion binaria
+    char binary_representation[KEY_SIZE] = {};
+
+    //Colocamos la representación binaria en el array
+    mpz_get_str(binary_representation, 2, clave_publica);
+
+    std::cout << "Representacion: " << binary_representation << std::endl;
+
+    Decarrier d(binary_representation, carrys);
+    std::string next_guess;
+
+    uint32_t guesses_made = 0;
+
+    while(d.nextDecarry(next_guess)){
+
+        if(guesses_made % 128 == 0) std::cout << guesses_made << " / " << bin_size*bin_size << std::endl;
+      
+        //Declaramos un polinomio con esa representación
+        Z2_poly<U_TYPE> clave_polinomica(next_guess);
+
+        //Declaramos un vector de factores
+        std::vector<Z2_poly<U_TYPE>> factores = {};
+
+        //Aplicamos el algoritmo de Berlekamp para factorizar el polinomio representación
+        berlekamp_factorize(clave_polinomica, factores);
+
+        //Ordenamos los factores
+        std::sort(factores.begin(), factores.end());
+
+        //Buscamos la clave
+        solve_factor(factores, bin_size/2 - 1, clave_publica, p);
+
+        //Escribimos el resultado de no ser 0
+        if(mpz_cmp_ui(p, 0) != 0){
+            std::cout << "Resultado: ";
+            mpz_out_str(stdout, 10, p);
+            std::cout << std::endl;
+
+            //Salimos del bucle de intentos
+            break;
+        }
+        
+        guesses_made++;
+    }
+}
+
+int main(){
+
+    //Declaramos una clave pública y un factor
+    mpz_t clave_publica, p;
+    mpz_inits(clave_publica, p, NULL);
+
+
+    //Mide el tiempo ahora
+    std::chrono::time_point<std::chrono::high_resolution_clock> principio = std::chrono::high_resolution_clock::now();
+
+    //Realizamos un test con primos que cumplen E(pq) = E(p)E(q)
+    test_equality_attack(clave_publica, p);
+
+    //Realizamos un test con primos que cumplen E(pq) = E(p)E(q) - c
+    test_n_carry_attack(clave_publica, p, "9205322533425922051", 2, 64);
 
     //Mide el tiempo al finalizar todo
     std::chrono::time_point<std::chrono::high_resolution_clock> final = std::chrono::high_resolution_clock::now();

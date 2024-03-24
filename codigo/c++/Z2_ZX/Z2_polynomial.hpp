@@ -1,7 +1,7 @@
-#ifndef Z2_Z_POLYNOMIALS
-#define Z2_Z_POLYNOMIALS
+#ifndef Z2_Z_POLYNOMIALS_HPP
+#define Z2_Z_POLYNOMIALS_HPP
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <iostream>
 #include <string>
 #include <deque>

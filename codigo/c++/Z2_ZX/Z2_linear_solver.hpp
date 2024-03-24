@@ -1,5 +1,5 @@
-#ifndef Z2_Z_LINEAR_SOLVER
-#define Z2_Z_LINEAR_SOLVER
+#ifndef Z2_Z_LINEAR_SOLVER_HPP
+#define Z2_Z_LINEAR_SOLVER_HPP
 
 #include <vector>
 #include <set>
