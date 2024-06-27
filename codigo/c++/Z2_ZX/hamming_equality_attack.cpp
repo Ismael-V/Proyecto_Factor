@@ -3,6 +3,7 @@
 #include <gmp.h>
 #include "Z2_linear_solver.hpp"
 #include "Z2_decarrier.hpp"
+#include "Z2_guided_decarrier.hpp"
 using namespace std;
 
 #define U_TYPE uint64_t
@@ -282,7 +283,7 @@ void test_n_carry_attack(mpz_t &clave_publica, mpz_t &p, std::string key, uint32
 
     std::cout << "Representacion: " << binary_representation << std::endl;
 
-    Decarrier d(binary_representation, carrys);
+    G_Decarrier d(binary_representation, carrys, true);
     std::string next_guess;
 
     uint32_t guesses_made = 0;
@@ -312,6 +313,8 @@ void test_n_carry_attack(mpz_t &clave_publica, mpz_t &p, std::string key, uint32
             mpz_out_str(stdout, 10, p);
             std::cout << std::endl;
 
+            std::cout << next_guess << std::endl;
+
             //Salimos del bucle de intentos
             break;
         }
@@ -331,10 +334,10 @@ int main(){
     std::chrono::time_point<std::chrono::high_resolution_clock> principio = std::chrono::high_resolution_clock::now();
 
     //Realizamos un test con primos que cumplen E(pq) = E(p)E(q)
-    test_equality_attack(clave_publica, p);
+    //test_equality_attack(clave_publica, p);
 
     //Realizamos un test con primos que cumplen E(pq) = E(p)E(q) - c
-    test_n_carry_attack(clave_publica, p, "9205322533425922051", 2, 64);
+    test_n_carry_attack(clave_publica, p, "8101977715751532059", 2, 64);
 
     //Mide el tiempo al finalizar todo
     std::chrono::time_point<std::chrono::high_resolution_clock> final = std::chrono::high_resolution_clock::now();
