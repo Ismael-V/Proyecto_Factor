@@ -1,49 +1,4 @@
-#ifndef Z2_Z_GDECARRIER_HPP
-#define Z2_Z_GDECARRIER_HPP
-
-#include <iostream>
-#include <cinttypes>
-#include <string>
-
-class G_Decarrier{
-    private:
-
-    uint32_t size;
-    uint8_t target_carry = false;
-    int32_t max_carrys = -1;
-    int32_t carrys = 0;
-    uint32_t* convolution_guess;
-    uint32_t* constraint_vector;
-
-    uint32_t* indexes;
-    uint32_t* times;
-
-    int32_t meta_index = 0;
-    uint8_t exists_guess = true;
-
-    uint8_t first = true;
-
-    std::string next_poly = "";
-
-    bool isDecarrable(uint32_t index) const;
-    bool isValid() const;
-    void polyInterpretation();
-    uint32_t nextDecarryPos(uint32_t index);
-
-    public:
-
-    //Pre: True
-    //Post: Declara un deacarreador guiado
-    G_Decarrier(std::string base);
-
-    //Pre: True
-    //Post: Declara un deacarreador guiado con un maximo numero de deacarreos
-    G_Decarrier(std::string base, uint32_t max_c, uint8_t target = false);
-
-    ~G_Decarrier();
-
-    bool nextDecarry(std::string& next);
-};
+#include "Z2_guided_decarrier.hpp"
 
 //Pre: True
 //Post: Decide en funcion del indice al que apunta si se puede proceder al deacarreo
@@ -155,6 +110,93 @@ G_Decarrier::G_Decarrier(std::string base){
         constraint_vector[k] = k;
         constraint_vector[size - k - 1] = k;
     }
+}
+
+//Pre: True
+//Post: Copia el deacarreador
+G_Decarrier::G_Decarrier(G_Decarrier& other){
+
+    this->size = other.size;
+    this->target_carry = other.target_carry;
+    this->max_carrys = other.max_carrys;
+    this->carrys = other.carrys;
+
+    //Clonamos los vectores
+    this->convolution_guess = new uint32_t[other.size];
+    this->constraint_vector = new uint32_t[other.size];
+
+    this->indexes = new uint32_t[other.size + 1];
+    this->times = new uint32_t[other.size + 1];
+
+    for(uint32_t i = 0; i < other.size; i++){
+        this->convolution_guess[i] = other.convolution_guess[i];
+        this->constraint_vector[i] = other.constraint_vector[i];
+
+        this->indexes[i] = other.indexes[i];
+        this->times[i] = other.times[i];
+    }
+
+    //Clonamos las ultimas componentes de estos vectores
+    this->indexes[other.size] = other.indexes[other.size];
+    this->times[other.size] = other.times[other.size];
+
+    this->meta_index = other.meta_index;
+    this->last_meta_index = other.last_meta_index;
+    this->exists_guess = other.exists_guess;
+
+    this->first = other.first;
+
+    std::string next_poly = other.next_poly;
+}
+
+//Pre: True
+//Post: Mueve el deacarreador
+G_Decarrier::G_Decarrier(G_Decarrier&& other){
+
+    this->size = other.size;
+    this->target_carry = other.target_carry;
+    this->max_carrys = other.max_carrys;
+    this->carrys = other.carrys;
+
+    //Movemos los vectores
+    if(this->convolution_guess != nullptr){
+        delete this->convolution_guess;
+        //std::cout << "Boom_1!!\n";
+    }
+
+    if(this->constraint_vector != nullptr){
+        delete this->constraint_vector;
+        //std::cout << "Boom_2!!\n";
+    }
+
+    if(this->indexes != nullptr){
+        delete this->indexes;
+        //std::cout << "Boom_3!!\n";
+    }
+
+    if(this->times != nullptr){
+        delete this->times;
+        //std::cout << "Boom_4!!\n";
+    }
+
+    this->convolution_guess = other.convolution_guess;
+    this->constraint_vector = other.constraint_vector;
+
+    this->indexes = other.indexes;
+    this->times = other.times;
+
+    other.convolution_guess = nullptr;
+    other.constraint_vector = nullptr;
+    other.indexes = nullptr;
+    other.times = nullptr;
+
+    this->meta_index = other.meta_index;
+    this->last_meta_index = other.last_meta_index;
+    this->exists_guess = other.exists_guess;
+
+    this->first = other.first;
+
+    std::string next_poly = other.next_poly;
 }
 
 G_Decarrier::G_Decarrier(std::string base, uint32_t max_c, uint8_t target) : G_Decarrier(base){
@@ -309,7 +351,7 @@ bool G_Decarrier::nextDecarry(std::string& next){
                     meta_index--;
 
                     //Si no hay nivel anterior
-                    if(meta_index < 0){
+                    if(meta_index < last_meta_index){
 
                         //No hay mas guesses
                         exists_guess = false;
@@ -324,4 +366,77 @@ bool G_Decarrier::nextDecarry(std::string& next){
     return false;
 }
 
-#endif
+//Pre: True
+//Post: Delega la rama actual que se explora a otro deacarreador y continua con la siguiente rama
+G_Decarrier G_Decarrier::branch(){
+
+    //Clonamos el deacarreador
+    G_Decarrier rama_actual(*this);
+
+    //Si no hay mas guesses en la nueva rama paramos
+    if(!this->exists_guess){
+        return rama_actual;
+    }
+
+    //La nueva rama nunca contendra al primer elemento
+    this->first = false;
+
+    uint8_t keep_backtracking = true;
+
+    //Mientras que sigas retrocediendo
+    while(keep_backtracking){
+
+        //Recuperamos el ultimo indice
+        uint32_t first_index = indexes[meta_index];
+
+        //Deshacemos todos los deacarreos de este nivel
+        while(times[meta_index] > 0){
+
+            //Descontamos un deacarreo
+            times[meta_index]--;
+
+            //Descontamos del total de deacarreos
+            carrys--;
+
+            //Deshacemos el deacarreo
+            convolution_guess[first_index] += 1;
+            convolution_guess[first_index + 1] -= 2;
+
+        }
+
+        //Probamos el siguiente
+        first_index = nextDecarryPos(first_index + 1);
+        std::cout << "Next start point: " << first_index << std::endl;
+
+        //Si no quedan mas indices en este nivel viajamos al nivel anterior e iteramos de nuevo el bucle
+        if(first_index >= size){
+            //Si no hay nivel anterior
+            if(meta_index < last_meta_index){
+
+                //No hay mas guesses
+                this->exists_guess = false;
+
+                //Deja de retroceder
+                keep_backtracking = false;
+            }else{
+                meta_index--;
+            }
+        
+        //Si hemos encontrado un nuevo indice
+        }else{
+
+            //Comenzamos a deacarrear por aqui
+            indexes[meta_index] = first_index;
+
+            //Pararemos de explorar al llegar al final de esta rama
+            rama_actual.last_meta_index = meta_index + 1;
+
+            //Deja de retroceder
+            keep_backtracking = false;
+
+        }
+    }
+
+    //Devuelve la rama actual
+    return rama_actual;
+}

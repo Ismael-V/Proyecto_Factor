@@ -1,48 +1,15 @@
-#ifndef PROFILER_HPP
-#define PROFILER_HPP
+#include "Profiler.hpp"
 
-#include <iostream>
-#include <iomanip>
-#include <map>
-#include <vector>
-#include <cinttypes>
-#include <string>
-#include <chrono>
-#include <numeric>
-#include <cmath>
+//Cuando se invoque al constructor con el nombre de un ambito
+Profiler::Profiler( const char* name )
+{
+    
+    //Ponemos el nombre de este ambito
+    this->scopeName = std::string( name );
 
-//Este es el mapa que contiene todos los ambitos que han sido corridos durante el programa
-static std::map <std::string, std::vector<uint64_t>> performanceMap;
-
-class Profiler {
-    private:
-
-    //Este es el nombre del ambito
-    std::string scopeName;
-
-    //Esta es la primera medida de tiempo tomada
-    std::chrono::high_resolution_clock::time_point start_point;
-
-    public:
-  
-    //Cuando se invoque al constructor con el nombre de un ambito
-    Profiler( const char* name )
-    {
-        
-        //Ponemos el nombre de este ambito
-        this->scopeName = std::string( name );
-
-        //Tomamos la primera medida de tiempo
-        this->start_point = std::chrono::high_resolution_clock::now();
-    }
-
-    //Cuando se invoque al destructor, se añadirá la medida de tiempo a su ambito correspondiente
-    ~Profiler();
-
-    //El constructor vacio genera un reporte
-    Profiler();
-
-};
+    //Tomamos la primera medida de tiempo
+    this->start_point = std::chrono::high_resolution_clock::now();
+}
 
 //Cuando se invoque al destructor, se añadirá la medida de tiempo a su ambito correspondiente
 Profiler::~Profiler()
@@ -101,5 +68,3 @@ Profiler::Profiler()
         std::cout << std::setw(27) << "" << std::setw(8) << std::to_string(llamadas) << std::setw(17) << std::setprecision(3) << std::to_string(media) << std::setw(29) << std::setprecision(3) << std::to_string(standard_deviation) << std::endl << std::endl;
     }
 }
-
-#endif
