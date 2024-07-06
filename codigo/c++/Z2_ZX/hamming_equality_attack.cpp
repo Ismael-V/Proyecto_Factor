@@ -331,18 +331,20 @@ int main(){
 
 
     //Mide el tiempo ahora
-    std::chrono::time_point<std::chrono::high_resolution_clock> principio = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::nanoseconds> principio = std::chrono::high_resolution_clock::now();
 
     //Realizamos un test con primos que cumplen E(pq) = E(p)E(q)
-    //test_equality_attack(clave_publica, p);
+    test_equality_attack(clave_publica, p);
 
     //Realizamos un test con primos que cumplen E(pq) = E(p)E(q) - c
     test_n_carry_attack(clave_publica, p, "8101977715751532059", 2, 64);
 
     //Mide el tiempo al finalizar todo
-    std::chrono::time_point<std::chrono::high_resolution_clock> final = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::nanoseconds> final = std::chrono::high_resolution_clock::now();
 
-    std::cout << "\nTime elapsed: " << (final - principio).count() << " ns ==> " << (final - principio).count()/10e9f << " s\n\n";
+    std::chrono::nanoseconds time_ellapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(final - principio);
+
+    std::cout << "\nTime elapsed: " << time_ellapsed.count() << " ns ==> " << (std::chrono::duration_cast<std::chrono::seconds>(time_ellapsed)).count() << " s\n\n";
 
     Profiler();
 
