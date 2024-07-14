@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cinttypes>
+#include <cstring>
 #include <string>
 #include "mpi.h"
 
@@ -29,9 +30,9 @@ struct work_packet{
     uint32_t indexes[KEY_SIZE + 1];
     uint32_t times[KEY_SIZE + 1];
 
-    uint8_t target_carry = false;
-    uint8_t exists_guess = true;
-    uint8_t first = true;
+    uint8_t target_carry;
+    uint8_t exists_guess;
+    uint8_t first;
 
     char next_poly[KEY_SIZE];
 };
@@ -64,7 +65,7 @@ class G_Decarrier{
 
     //Pre: True
     //Post: Constructor vacio
-    G_Decarrier();
+    G_Decarrier(uint32_t tamanyo);
 
     public:
 

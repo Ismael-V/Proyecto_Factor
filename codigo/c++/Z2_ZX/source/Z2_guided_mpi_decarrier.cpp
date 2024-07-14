@@ -73,7 +73,14 @@ uint32_t G_Decarrier::nextDecarryPos(uint32_t index){
     return size;
 }
 
-G_Decarrier::G_Decarrier(){
+G_Decarrier::G_Decarrier(uint32_t tamanyo){
+
+    size = tamanyo;
+	
+    convolution_guess = new uint32_t[size];
+    constraint_vector = new uint32_t[size];
+    indexes = new uint32_t[size + 1](0);
+    times = new uint32_t[size + 1](0);
 
 }
 
@@ -556,14 +563,14 @@ G_Decarrier G_Decarrier::MPI_Recv_GDecarrier(int32_t src){
     //Declaramos un paquete de trabajo
     work_packet paquete;
 
-    //Declaramos el deacarreador que construiremos
-    G_Decarrier d;
-
     //Recibimos los datos con esta sentencia
     MPI_Recv(&paquete, 1, MPI_WORK_PACKET, src, WORK_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+
+    //Declaramos el deacarreador que construiremos
+    G_Decarrier d(paquete.size);
+
     //Escribimos cada campo del paquete de trabajo con la copia de nuestro decarrier
-    d.size = paquete.size;
     d.max_carrys = paquete.max_carrys;
     d.carrys = paquete.carrys;
     d.meta_index = paquete.meta_index;

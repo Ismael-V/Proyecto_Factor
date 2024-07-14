@@ -119,6 +119,7 @@ int main(int argc, char** argv){
             }
         }else{
             G_Decarrier mi_rama = G_Decarrier::MPI_Recv_GDecarrier(0);
+            cout << "Id --> " << my_id << " Recibido deacarreador\n";
             std::string next_guess;
             while(mi_rama.nextDecarry(next_guess)){
                 std::cout << "Id --> " << my_id << " : " << next_guess << std::endl;
