@@ -467,7 +467,7 @@ int init_MPI(){
         1, //uint8_t exists_guess = true;
         1, //uint8_t first = true;
         KEY_SIZE //char next_poly[KEY_SIZE];
-    }
+    };
 
     //Indicamos donde se localiza cada elemento en el struct
     MPI_Aint D[] = {
@@ -484,7 +484,7 @@ int init_MPI(){
         offsetof(struct work_packet, exists_guess), //uint8_t exists_guess = true;
         offsetof(struct work_packet, first), //uint8_t first = true;
         offsetof(struct work_packet, next_poly) //char next_poly[KEY_SIZE];
-    }
+    };
 
     //Indicamos el tipo de cada elemento en tipos basicos de MPI
     MPI_Datatype T[] = {
@@ -501,18 +501,24 @@ int init_MPI(){
         MPI_UINT8_T, //uint8_t exists_guess = true;
         MPI_UINT8_T, //uint8_t first = true;
         MPI_CHAR //char next_poly[KEY_SIZE];
-    }
+    };
 
-    //Generamos el tipo de datos y lo asentamos
+    //Generamos el tipo de datos
     MPI_Type_create_struct(WPACKET_ELEMS, B, D, T, &MPI_WORK_PACKET);
+
+    //Generamos el tipo de datos para enviar claves y resultados
+    MPI_Type_contiguous(KEY_SIZE, MPI_CHAR, &MPI_STR_KEY_VALUE);
+
+    //Los consolidamos
     MPI_Type_commit(&MPI_WORK_PACKET);
+    MPI_Type_commit(&MPI_STR_KEY_VALUE);
 
     return 1;
 }
 
 //Pre: Se debe haber ejecutado previamente init_MPI();
 //Post: Envia, de forma bloqueante, el deacarreador al nodo indicado
-void MPI_Send_GDecarrier(const G_Decarrier &d, int32_t dest){
+void G_Decarrier::MPI_Send_GDecarrier(const G_Decarrier &d, int32_t dest){
 
     //Declaramos un paquete de trabajo
     work_packet paquete;
@@ -540,12 +546,12 @@ void MPI_Send_GDecarrier(const G_Decarrier &d, int32_t dest){
     paquete.first = d.first;
 
     //Lo enviamos con la API de MPI
-    MPI_Send(&paquete, 1, MPI_WORK_PACKET, dest, 0, MPI_COMM_WORLD);
+    MPI_Send(&paquete, 1, MPI_WORK_PACKET, dest, WORK_CHANNEL, MPI_COMM_WORLD);
 }
 
 //Pre: Se debe haber ejecutado previamente init_MPI();
 //Post: Recibe, de forma bloqueante, un deacarreador del nodo indicado
-G_Decarrier MPI_Recv_GDecarrier(int32_t src){
+G_Decarrier G_Decarrier::MPI_Recv_GDecarrier(int32_t src){
 
     //Declaramos un paquete de trabajo
     work_packet paquete;
@@ -554,7 +560,7 @@ G_Decarrier MPI_Recv_GDecarrier(int32_t src){
     G_Decarrier d;
 
     //Recibimos los datos con esta sentencia
-    MPI_Recv(&paquete, 1, MPI_WORK_PACKET, src, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(&paquete, 1, MPI_WORK_PACKET, src, WORK_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
     //Escribimos cada campo del paquete de trabajo con la copia de nuestro decarrier
     d.size = paquete.size;
@@ -580,4 +586,35 @@ G_Decarrier MPI_Recv_GDecarrier(int32_t src){
 
     //Devolvemos el deacarreador recibido
     return d;
+}
+
+//Pre: Se debe haber ejecutado previamente init_MPI() y key.length() <= KEY_SIZE
+//Post: Envia, de forma bloqueante, la clave o valor al nodo indicado
+void MPI_Send_KeyValue(const std::string& key, int32_t dest){
+
+    //Generamos un buffer
+    char clave[KEY_SIZE];
+
+    //Si excedemos el tamanyo permitido de envio regresamos
+    if(key.length() > KEY_SIZE) return;
+
+    //Copiamos la clave o valor al buffer
+    strcpy(clave, key.c_str());
+
+    //Lo enviamos con la API de MPI
+    MPI_Send(&clave, 1, MPI_STR_KEY_VALUE, dest, KEY_VAL_CHANNEL, MPI_COMM_WORLD);
+}
+
+//Pre: Se debe haber ejecutado previamente init_MPI()
+//Post: Recibe, de forma bloqueante, la clave o valor del nodo indicado
+std::string MPI_Recv_KeyValue(int32_t src){
+
+    //Generamos un buffer
+    char clave[KEY_SIZE];
+
+    //Recibimos los datos con esta sentencia
+    MPI_Recv(&clave, 1, MPI_STR_KEY_VALUE, src, KEY_VAL_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+    //Devolvemos la clave como una cadena de caracteres
+    return std::string(clave);
 }

@@ -8,12 +8,16 @@
 
 constexpr uint32_t KEY_SIZE = 2048;
 
+constexpr int WORK_CHANNEL = 0;
+constexpr int KEY_VAL_CHANNEL = 1;
+
 static uint8_t isInitializedMPI = 0;
 static MPI_Datatype MPI_WORK_PACKET;
-static constexpr WPACKET_ELEMS = 13;
+static MPI_Datatype MPI_STR_KEY_VALUE;
+static constexpr uint8_t WPACKET_ELEMS = 13;
 
 //Paquete de trabajo para el deacarreador guiado
-static struct {
+struct work_packet{
     uint32_t size; 
     int32_t max_carrys;
     int32_t carrys;
@@ -30,7 +34,7 @@ static struct {
     uint8_t first = true;
 
     char next_poly[KEY_SIZE];
-} work_packet;
+};
 
 class G_Decarrier{
     private:
@@ -88,6 +92,16 @@ class G_Decarrier{
     //Post: Delega la rama actual que se explora a otro deacarreador y continua con la siguiente de ser posible
     G_Decarrier branch();
 
+    //----> Rutinas MPI <----
+
+    //Pre: Se debe haber ejecutado previamente init_MPI();
+    //Post: Envia, de forma bloqueante, el deacarreador al nodo indicado
+    static void MPI_Send_GDecarrier(const G_Decarrier &d, int32_t dest);
+
+    //Pre: Se debe haber ejecutado previamente init_MPI();
+    //Post: Recibe, de forma bloqueante, un deacarreador del nodo indicado
+    static G_Decarrier MPI_Recv_GDecarrier(int32_t src);
+
 };
 
 //----> Rutinas MPI <----
@@ -96,12 +110,12 @@ class G_Decarrier{
 //Post: Inicializa el tipo de datos, bloque de trabajo para poder enviar este objeto a traves de MPI
 int init_MPI();
 
-//Pre: Se debe haber ejecutado previamente init_MPI();
-//Post: Envia, de forma bloqueante, el deacarreador al nodo indicado
-void MPI_Send_GDecarrier(const G_Decarrier &d, int32_t dest);
+//Pre: Se debe haber ejecutado previamente init_MPI() y key.length() <= KEY_SIZE
+//Post: Envia, de forma bloqueante, la clave o valor al nodo indicado
+void MPI_Send_KeyValue(const std::string& key, int32_t dest);
 
-//Pre: True
-//Post: Recibe, de forma bloqueante, un deacarreador del nodo indicado
-void MPI_RECV_GDecarrier(G_Decarrier &d, int32_t src);
+//Pre: Se debe haber ejecutado previamente init_MPI()
+//Post: Recibe, de forma bloqueante, la clave o valor del nodo indicado
+std::string MPI_Recv_KeyValue(int32_t src);
 
 #endif
