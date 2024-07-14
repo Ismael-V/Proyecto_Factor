@@ -461,8 +461,8 @@ int init_MPI(){
         1, //int32_t last_meta_index;
         KEY_SIZE, //uint32_t convolution_guess[KEY_SIZE];
         KEY_SIZE, //uint32_t constraint_vector[KEY_SIZE];
-        KEY_SIZE + 1, //uint32_t indexes[KEY_SIZE];
-        KEY_SIZE + 1, //uint32_t times[KEY_SIZE];
+        KEY_SIZE + 1, //uint32_t indexes[KEY_SIZE + 1];
+        KEY_SIZE + 1, //uint32_t times[KEY_SIZE + 1];
         1, //uint8_t target_carry = false;
         1, //uint8_t exists_guess = true;
         1, //uint8_t first = true;

@@ -116,6 +116,8 @@ G_Decarrier::G_Decarrier(std::string base){
 //Post: Copia el deacarreador
 G_Decarrier::G_Decarrier(G_Decarrier& other){
 
+    std::cout << "Clono el elemento\n";
+
     this->size = other.size;
     this->target_carry = other.target_carry;
     this->max_carrys = other.max_carrys;
@@ -375,6 +377,7 @@ G_Decarrier G_Decarrier::branch(){
 
     //Si no hay mas guesses en la nueva rama paramos
     if(!this->exists_guess){
+        std::cout << "No hay mas soluciones\n" << size << std::endl;
         return rama_actual;
     }
 
@@ -407,11 +410,15 @@ G_Decarrier G_Decarrier::branch(){
         //Probamos el siguiente
         first_index = nextDecarryPos(first_index + 1);
         std::cout << "Next start point: " << first_index << std::endl;
+        std::cout << "Size: " << size << std::endl;
 
         //Si no quedan mas indices en este nivel viajamos al nivel anterior e iteramos de nuevo el bucle
         if(first_index >= size){
+
             //Si no hay nivel anterior
-            if(meta_index < last_meta_index){
+            if(meta_index < last_meta_index || meta_index == 0){
+
+                std::cout << "Fin de exploracion\n" << size << std::endl;
 
                 //No hay mas guesses
                 this->exists_guess = false;
@@ -419,7 +426,9 @@ G_Decarrier G_Decarrier::branch(){
                 //Deja de retroceder
                 keep_backtracking = false;
             }else{
+
                 meta_index--;
+
             }
         
         //Si hemos encontrado un nuevo indice

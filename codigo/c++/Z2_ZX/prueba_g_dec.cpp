@@ -2,28 +2,19 @@
 
 int main(){
     G_Decarrier d("1110111");
-
     std::string foo;
+
     while(d.nextDecarry(foo)){
         std::cout << foo << std::endl;
-    };
-
-    G_Decarrier d2("1110111");
-    G_Decarrier b1 = d2.branch();
-
-    std::cout << "Rama 1\n";
-
-    while(b1.nextDecarry(foo)){
-        std::cout << foo << std::endl;
     }
 
-    std::cout << "\nRama 2\n";
-
-    while(d2.nextDecarry(foo)){
-        std::cout << foo << std::endl;
+    G_Decarrier dd("1110111");
+    for(uint32_t i = 0; i < 20; i++){
+        G_Decarrier rama = dd.branch();
+        while(rama.nextDecarry(foo)){
+            std::cout << "Rama " << i << " --> " << foo << std::endl;
+        }
     }
-
-    std::cout << "Salgo" << std::endl;
 
     return 0;
 }
