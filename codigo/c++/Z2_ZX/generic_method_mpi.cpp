@@ -110,6 +110,13 @@ int main(int argc, char** argv){
         if(my_id == 0){
             for(string s : claves){
                 G_Decarrier d(s);
+		std::string next_guess;
+
+		d.nextDecarry(next_guess);
+		std::cout << "Id --> " << my_id << " : " << next_guess << std::endl;
+		d.nextDecarry(next_guess);
+		std::cout << "Id --> " << my_id << " : " << next_guess << std::endl;
+
                 for(uint32_t i = 1; i < num_procs; i++){
                     G_Decarrier rama = d.branch();
                     G_Decarrier::MPI_Send_GDecarrier(rama, i);
