@@ -19,7 +19,6 @@ class G_Decarrier{
     uint32_t* times = nullptr;
 
     int32_t meta_index = 0;
-    int32_t last_meta_index = 0;
     uint8_t exists_guess = true;
 
     uint8_t first = true;
@@ -51,7 +50,13 @@ class G_Decarrier{
 
     ~G_Decarrier();
 
+    //Pre: True
+    //Post: Devuelve la paridad del siguiente vector de deacarreo de haberlo
     bool nextDecarry(std::string& next);
+
+    //Pre: True
+    //Post: Devuelve si quedan en la rama posibles guesses
+    bool existsGuess();
 
     //Pre: True
     //Post: Delega la rama actual que se explora a otro deacarreador y continua con la siguiente de ser posible

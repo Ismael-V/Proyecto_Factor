@@ -15,7 +15,7 @@ constexpr int KEY_VAL_CHANNEL = 1;
 static uint8_t isInitializedMPI = 0;
 static MPI_Datatype MPI_WORK_PACKET;
 static MPI_Datatype MPI_STR_KEY_VALUE;
-static constexpr uint8_t WPACKET_ELEMS = 13;
+static constexpr uint8_t WPACKET_ELEMS = 12;
 
 //Paquete de trabajo para el deacarreador guiado
 struct work_packet{
@@ -23,7 +23,6 @@ struct work_packet{
     int32_t max_carrys;
     int32_t carrys;
     int32_t meta_index;
-    int32_t last_meta_index;
 
     uint32_t convolution_guess[KEY_SIZE];
     uint32_t constraint_vector[KEY_SIZE];
@@ -51,7 +50,6 @@ class G_Decarrier{
     uint32_t* times = nullptr;
 
     int32_t meta_index = 0;
-    int32_t last_meta_index = 0;
     uint8_t exists_guess = true;
 
     uint8_t first = true;
@@ -87,7 +85,13 @@ class G_Decarrier{
 
     ~G_Decarrier();
 
+    //Pre: True
+    //Post: Devuelve la paridad del siguiente vector de deacarreo de haberlo
     bool nextDecarry(std::string& next);
+
+    //Pre: True
+    //Post: Devuelve si quedan en la rama posibles guesses
+    bool existsGuess();
 
     //Pre: True
     //Post: Delega la rama actual que se explora a otro deacarreador y continua con la siguiente de ser posible

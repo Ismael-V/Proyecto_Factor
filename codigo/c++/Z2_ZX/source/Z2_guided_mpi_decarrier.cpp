@@ -152,7 +152,6 @@ G_Decarrier::G_Decarrier(G_Decarrier& other){
     this->times[other.size] = other.times[other.size];
 
     this->meta_index = other.meta_index;
-    this->last_meta_index = other.last_meta_index;
     this->exists_guess = other.exists_guess;
 
     this->first = other.first;
@@ -202,7 +201,6 @@ G_Decarrier::G_Decarrier(G_Decarrier&& other){
     other.times = nullptr;
 
     this->meta_index = other.meta_index;
-    this->last_meta_index = other.last_meta_index;
     this->exists_guess = other.exists_guess;
 
     this->first = other.first;
@@ -271,6 +269,8 @@ bool G_Decarrier::nextDecarry(std::string& next){
 
         //Pillamos el primer indice a deacarrear
         uint32_t first_index = indexes[meta_index];
+
+        //std::cout << "F: " << first_index << " MI: " << meta_index << std::endl;
         
         //Si dicho indice esta en el vector y el numero de acarreos no excede el maximo
         if(first_index < size && (max_carrys == -1 || carrys <= max_carrys)){
@@ -291,21 +291,19 @@ bool G_Decarrier::nextDecarry(std::string& next){
                 //Si es valido devolvemos una guess
                 if(isValid() && (!target_carry || carrys == max_carrys)){
 
-                    uint8_t first = true;
-
                     /*
-
-                    for(uint32_t e = 0; e < size; e++ ){    
-                        if(first){
-                            std::cout << convolution_guess[e];
-                            first = false;
-                        }else{
-                            std::cout << " | " << convolution_guess[e];
+                    {
+                        uint8_t f = true;
+                        for(uint32_t i = 0; i < this->size; i++){
+                            if(f){
+                                std::cout << this->convolution_guess[i];
+                            }else{
+                                std::cout << " - " << this->convolution_guess[i];
+                            }
                         }
+                        std::cout << std::endl;
+                        //std::cout << "Metaindex: " << this->meta_index << std::endl;
                     }
-
-                    std::cout << std::endl;
-
                     */
 
                     //Interpretamos la guess
@@ -321,9 +319,11 @@ bool G_Decarrier::nextDecarry(std::string& next){
 
             //Si no se puede deacarrear probamos con el siguiente
             }else{
+
                 indexes[meta_index + 1] = nextDecarryPos(indexes[meta_index] + 1);
                 times[meta_index + 1] = 0;
                 meta_index++;
+
             }
 
         //Si no esta o nos hemos pasado con los acarreos
@@ -362,7 +362,7 @@ bool G_Decarrier::nextDecarry(std::string& next){
                     meta_index--;
 
                     //Si no hay nivel anterior
-                    if(meta_index < last_meta_index){
+                    if(meta_index < 0){
 
                         //No hay mas guesses
                         exists_guess = false;
@@ -378,30 +378,40 @@ bool G_Decarrier::nextDecarry(std::string& next){
 }
 
 //Pre: True
+//Post: Devuelve si quedan en la rama posibles guesses
+bool G_Decarrier::existsGuess(){
+    return this->exists_guess;
+}
+
+//Pre: True
 //Post: Delega la rama actual que se explora a otro deacarreador y continua con la siguiente rama
 G_Decarrier G_Decarrier::branch(){
 
     //Clonamos el deacarreador
     G_Decarrier rama_actual(*this);
 
-    //Si no hay mas guesses en la nueva rama paramos
-    if(!this->exists_guess){
+    //Si no quedan mas guesses devolvemos la rama actual
+    if(!exists_guess){
         return rama_actual;
     }
 
-    //La nueva rama nunca contendra al primer elemento
+    //Colocamos a la rama actual como si comenzasemos la exploracion
+    rama_actual.indexes[0] = rama_actual.indexes[meta_index];
+    rama_actual.times[0] = 0;
+    rama_actual.meta_index = 0;
+
+    //Nuestro deacarreador no contendra al primer elemento
     this->first = false;
 
+    //Realizamos un retroceso como si nos hubiesemos quedado sin mas elementos que deacarrear
     uint8_t keep_backtracking = true;
+    uint32_t first_index;
 
     //Mientras que sigas retrocediendo
     while(keep_backtracking){
 
-        //Recuperamos el ultimo indice
-        uint32_t first_index = indexes[meta_index];
-
-        //Deshacemos todos los deacarreos de este nivel
-        while(times[meta_index] > 0){
+        //Deshacemos un deacarreo, de poder hacerlo y probamos con el siguiente
+        if(times[meta_index] > 0){
 
             //Descontamos un deacarreo
             times[meta_index]--;
@@ -409,46 +419,35 @@ G_Decarrier G_Decarrier::branch(){
             //Descontamos del total de deacarreos
             carrys--;
 
+            //Recuperamos el anterior indice
+            first_index = indexes[meta_index];
+
             //Deshacemos el deacarreo
             convolution_guess[first_index] += 1;
             convolution_guess[first_index + 1] -= 2;
 
-        }
+            //Probamos con el siguiente
+            indexes[meta_index + 1] = nextDecarryPos(first_index + 1);
+            times[meta_index + 1] = 0;
+            meta_index++;
 
-        //Probamos el siguiente
-        first_index = nextDecarryPos(first_index + 1);
-        std::cout << "Next start point: " << first_index << std::endl;
+            keep_backtracking = false;
 
-        //Si no quedan mas indices en este nivel viajamos al nivel anterior e iteramos de nuevo el bucle
-        if(first_index >= size){
+        //Si no podemos, retrocederemos al nivel anterior
+        }else{
+            meta_index--;
+
             //Si no hay nivel anterior
-            if(meta_index < last_meta_index){
+            if(meta_index < 0){
 
                 //No hay mas guesses
                 this->exists_guess = false;
-
-                //Deja de retroceder
-                keep_backtracking = false;
-            }else{
-                meta_index--;
+                return rama_actual;
             }
-        
-        //Si hemos encontrado un nuevo indice
-        }else{
-
-            //Comenzamos a deacarrear por aqui
-            indexes[meta_index] = first_index;
-
-            //Pararemos de explorar al llegar al final de esta rama
-            rama_actual.last_meta_index = meta_index + 1;
-
-            //Deja de retroceder
-            keep_backtracking = false;
-
         }
     }
 
-    //Devuelve la rama actual
+    //Devolvemos la rama actual
     return rama_actual;
 }
 
@@ -465,7 +464,6 @@ int init_MPI(){
         1, //int32_t max_carrys;
         1, //int32_t carrys;
         1, //int32_t meta_index;
-        1, //int32_t last_meta_index;
         KEY_SIZE, //uint32_t convolution_guess[KEY_SIZE];
         KEY_SIZE, //uint32_t constraint_vector[KEY_SIZE];
         KEY_SIZE + 1, //uint32_t indexes[KEY_SIZE + 1];
@@ -482,7 +480,6 @@ int init_MPI(){
         offsetof(struct work_packet, max_carrys), //int32_t max_carrys;
         offsetof(struct work_packet, carrys), //int32_t carrys;
         offsetof(struct work_packet, meta_index), //int32_t meta_index;
-        offsetof(struct work_packet, last_meta_index), //int32_t last_meta_index;
         offsetof(struct work_packet, convolution_guess), //uint32_t convolution_guess[KEY_SIZE];
         offsetof(struct work_packet, constraint_vector), //uint32_t constraint_vector[KEY_SIZE];
         offsetof(struct work_packet, indexes), //uint32_t indexes[KEY_SIZE];
@@ -499,7 +496,6 @@ int init_MPI(){
         MPI_INT32_T, //int32_t max_carrys;
         MPI_INT32_T, //int32_t carrys;
         MPI_INT32_T, //int32_t meta_index;
-        MPI_INT32_T, //int32_t last_meta_index;
         MPI_UINT32_T, //uint32_t convolution_guess[KEY_SIZE];
         MPI_UINT32_T, //uint32_t constraint_vector[KEY_SIZE];
         MPI_UINT32_T, //uint32_t indexes[KEY_SIZE];
@@ -535,7 +531,6 @@ void G_Decarrier::MPI_Send_GDecarrier(const G_Decarrier &d, int32_t dest){
     paquete.max_carrys = d.max_carrys;
     paquete.carrys = d.carrys;
     paquete.meta_index = d.meta_index;
-    paquete.last_meta_index = d.last_meta_index;
 
     for(uint32_t i = 0; i < d.size; i++){
         paquete.convolution_guess[i] = d.convolution_guess[i];
@@ -574,7 +569,6 @@ G_Decarrier G_Decarrier::MPI_Recv_GDecarrier(int32_t src){
     d.max_carrys = paquete.max_carrys;
     d.carrys = paquete.carrys;
     d.meta_index = paquete.meta_index;
-    d.last_meta_index = paquete.last_meta_index;
 
     for(uint32_t i = 0; i < paquete.size; i++){
         d.convolution_guess[i] = paquete.convolution_guess[i];

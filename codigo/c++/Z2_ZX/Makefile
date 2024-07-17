@@ -1,5 +1,5 @@
 
-opt_flags= -O0 #-march=native -O3
+opt_flags= -O0 -g #-march=native -O3
 
 hamming_equality_attack: hamming_equality_attack.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o
 	g++ $(opt_flags) -std=c++20 hamming_equality_attack.cpp objects/Solve_Factor.o objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o -lgmp -o bin/hamming_equality_attack
