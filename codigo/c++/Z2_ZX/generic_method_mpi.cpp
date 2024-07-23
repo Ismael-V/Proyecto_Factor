@@ -2,6 +2,7 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
+#include <atomic>
 #include "source/Z2_guided_mpi_decarrier.hpp"
 #include "source/Solve_Factor.hpp"
 
@@ -10,6 +11,10 @@ using namespace std;
 #define U_TYPE uint64_t
 
 vector<string> claves;
+
+constexpr int COMMAND_CHANNEL = 3;
+
+constexpr uint32_t WORKER_FINISH = 0;
 
 //Pre: True
 //Post: Lee las claves del fichero indicado y las almacena en el vector de claves
@@ -33,15 +38,32 @@ bool readKeys(string fichero){
     return true;
 }
 
-void worker_server_routine(){
+void worker_client_server_routine(){
+    bool terminar = false;
+    uint32_t code;
+    atomic<bool> keepWorking = false;
+
+    while(!terminar){
+        //Recibir peticion
+        MPI_Recv(&code, 1, MPI_UINT32_T, 0, COMMAND_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        //Si queremos terminar con el worker
+        if(code == WORKER_FINISH){
+
+            //Terminamos de escuchar peticiones
+            terminar = true;
+        }
+
+        //Procesar la peticion en un hilo distinto
+        thread(worker_client_routine, code, std::ref(keepWorking));
+    }
+}
+
+void worker_client_routine(uint32_t code, atomic<bool>& keepWorking){
 
 }
 
-void worker_client_routine(){
-
-}
-
-void working_routine(){
+void working_routine(atomic<bool>& keepWorking){
 
     //Declaramos los numeros
     mpz_t clave_publica;
@@ -60,7 +82,7 @@ void working_routine(){
     G_Decarrier d = G_Decarrier::MPI_Recv_GDecarrier(0);
     std::string next_guess;
 
-    while(d.nextDecarry(next_guess)){
+    while(keepWorking && d.nextDecarry(next_guess)){
  
         //Declaramos un polinomio con esa representación
         Z2_poly<U_TYPE> clave_polinomica(next_guess);
