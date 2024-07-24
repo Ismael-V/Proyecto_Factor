@@ -204,7 +204,7 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     std::string next_guess;
 
     //Mientras no alacancemos una profundidad adecuada y queden elementos por explorar
-    while(!activeWorkers || (masterBranch.getCarrys() < CARRY_THRESHOLD && masterBranch.nextDecarry(next_guess))){
+    while((!activeWorkers || masterBranch.getCarrys() < CARRY_THRESHOLD) && masterBranch.nextDecarry(next_guess)){
 
         //Declaramos un polinomio con esa representación
         Z2_poly<U_TYPE> clave_polinomica(next_guess);
@@ -262,19 +262,19 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 
                 //Si ha enviado la orden de terminacion lo marcamos como inactivo
                 case ORD_TERMINATE:
-			{
-                    		workers[order[0]] = STATUS_OFFLINE;
-                    		uint8_t isActive = 0;
+                    {
+                        workers[order[0]] = STATUS_OFFLINE;
+                        uint8_t isActive = 0;
 
-                    		//Recalculamos activeWorkers
-                    		for(uint32_t i = 0; i < numOfWorkers && !isActive; i++){
-                        		if(workers[i] != STATUS_OFFLINE){
-                            			isActive = 1;
-                        		}
-                    		}
-                    		activeWorkers.store(isActive);
-                    		break;
-			}
+                        //Recalculamos activeWorkers
+                        for(uint32_t i = 0; i < numOfWorkers && !isActive; i++){
+                            if(workers[i] != STATUS_OFFLINE){
+                                    isActive = 1;
+                            }
+                        }
+                        activeWorkers.store(isActive);
+                        break;
+                    }
                 //Si ha encontrado la solucion
                 case ORD_SOL_FOUND:
 
