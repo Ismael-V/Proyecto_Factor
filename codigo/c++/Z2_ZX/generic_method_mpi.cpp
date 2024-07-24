@@ -53,10 +53,13 @@ void recvOrder(uint32_t order[2], int src){
 
 //Pre: True
 //Post: Rutina que se encarga de realizar las tareas pertinentes que se le manden
-void worker_client_routine(atomic<uint32_t>& order, uint32_t id, std::string key){
+void worker_client_routine(atomic<uint32_t>& order, atomic<uint32_t>& requestPend, uint32_t id, std::string key){
 
     //Declaramos la variable de comandos que enviaremos al master
     uint32_t command[2] = {id, ORD_NULL};
+
+    //Declaramos la variable terminadora
+    uint8_t active = 1;
 
     //Declaramos los numeros
     mpz_t clave_publica;
@@ -69,64 +72,73 @@ void worker_client_routine(atomic<uint32_t>& order, uint32_t id, std::string key
     mpz_set_str(clave_publica, key.c_str(), 10);
 
     //Mientras que la orden recibida no sea de terminacion
-    while(order != ORD_TERMINATE){
+    while(active){
         
-        //Si la orden es de trabajo
-        if(order == ORD_WORK){
 
-            //Declaramos el deacarreador que recibiremos del nodo master tambien
-            G_Decarrier d = G_Decarrier::MPI_Recv_GDecarrier(MASTER_NODE);
-            std::string next_guess;
+        if(requestPend){
+            //Si la orden es de trabajo
+            if(order == ORD_WORK){
 
-	    std::cout << "Trabajo encomendado a " << command[0] << std::endl;
+                //Declaramos el deacarreador que recibiremos del nodo master tambien
+                G_Decarrier d = G_Decarrier::MPI_Recv_GDecarrier(MASTER_NODE);
+                std::string next_guess;
 
-            //Mientras no se indique terminacion y queden elementos por explorar
-            while(!(order & ORD_TERMINATE) && d.nextDecarry(next_guess)){
-        
-                //Declaramos un polinomio con esa representación
-                Z2_poly<U_TYPE> clave_polinomica(next_guess);
+                std::cout << "Trabajo encomendado a " << command[0] << std::endl;
 
-                //Declaramos un vector de factores
-                std::vector<Z2_poly<U_TYPE>> factores = {};
+                //Mientras no se indique terminacion y queden elementos por explorar
+                while(!(order & ORD_TERMINATE) && d.nextDecarry(next_guess)){
+            
+                    //Declaramos un polinomio con esa representación
+                    Z2_poly<U_TYPE> clave_polinomica(next_guess);
 
-                //Aplicamos el algoritmo de Berlekamp para factorizar el polinomio representación
-                berlekamp_factorize(clave_polinomica, factores);
+                    //Declaramos un vector de factores
+                    std::vector<Z2_poly<U_TYPE>> factores = {};
 
-                //Ordenamos los factores
-                std::sort(factores.begin(), factores.end());
+                    //Aplicamos el algoritmo de Berlekamp para factorizar el polinomio representación
+                    berlekamp_factorize(clave_polinomica, factores);
 
-                //Buscamos la clave
-                solve_factor_blind(factores, clave_publica, p);
+                    //Ordenamos los factores
+                    std::sort(factores.begin(), factores.end());
 
-                //De encontrarla se la enviamos al nodo master
-                if(mpz_cmp_ui(p, 0) != 0){
+                    //Buscamos la clave
+                    solve_factor_blind(factores, clave_publica, p);
 
-                    //Declaramos un array donde almacenaremos el numero
-                    char resultado[KEY_SIZE] = {};
-                    mpz_get_str(resultado, 10, p);
-                    
-                    //Enviamos la orden de solucion encontrada
-                    command[1] = ORD_SOL_FOUND;
-                    sendOrder(command, MASTER_NODE);
+                    //De encontrarla se la enviamos al nodo master
+                    if(mpz_cmp_ui(p, 0) != 0){
 
-                    //Enviamos la solucion
-                    MPI_Send_KeyValue(std::string(resultado), MASTER_NODE);
+                        //Declaramos un array donde almacenaremos el numero
+                        char resultado[KEY_SIZE] = {};
+                        mpz_get_str(resultado, 10, p);
+                        
+                        //Enviamos la orden de solucion encontrada
+                        command[1] = ORD_SOL_FOUND;
+                        sendOrder(command, MASTER_NODE);
 
-                    //Salimos del bucle de intentos
-                    break;
+                        //Enviamos la solucion
+                        MPI_Send_KeyValue(std::string(resultado), MASTER_NODE);
+
+                        //Salimos del bucle de intentos
+                        break;
+                    }
                 }
+
+                //Si hemos salido y no ha sido por terminacion o por encontrar solucion
+                if(!(order & ORD_TERMINATE) && !(command[1] & ORD_SOL_FOUND)){
+
+                    //Nos hemos quedado sin trabajo, asi que nos colocamos en pendientes
+                    command[1] = ORD_END_WORK;
+                    sendOrder(command, MASTER_NODE);
+                }
+
+                //Reiniciamos el comando
+                command[1] = ORD_NULL;
+            }else if(order == ORD_TERMINATE){
+
+                //Si la orden es terminar ponemos activo a 0
+                active = 0;
             }
 
-            //Si hemos salido y no ha sido por terminacion o por encontrar solucion
-            if(!(order & ORD_TERMINATE) && !(command[1] & ORD_SOL_FOUND)){
-
-                //Nos hemos quedado sin trabajo, asi que nos colocamos en pendientes
-                command[1] = ORD_END_WORK;
-                sendOrder(command, MASTER_NODE);
-            }
-
-            //Reiniciamos el comando
-            command[1] = ORD_NULL;
+            requestPend = false;
         }
     }
 
@@ -149,9 +161,10 @@ void worker_server_routine(uint32_t id, std::string key){
     uint32_t code;
     uint32_t command[2];
     atomic<uint32_t> order = ORD_NULL;
+    atomic<bool> requestPend = false;
 
     //Lanzamos un hilo con la rutina de trabajo del cliente
-    thread cliente(worker_client_routine, std::ref(order), id, key);
+    thread cliente(worker_client_routine, std::ref(order), std::ref(requestPend), id, key);
 
     std::cout << "Worker " << id << " funcionando con cliente\n";
 
@@ -160,8 +173,12 @@ void worker_server_routine(uint32_t id, std::string key){
         //Escuchamos peticion y hacemos visible la nueva orden
         recvOrder(command, MASTER_NODE);
         order.store(command[1]);
+        requestPend = true;
+
         std::cout << "Worker " << id << " recibio comando " << command[1] << std::endl;
         std::flush(std::cout);
+
+        while(requestPend) sched_yield();
     }
 
     //Terminamos, esperando a que el otro hilo termine
