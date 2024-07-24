@@ -97,6 +97,10 @@ class G_Decarrier{
     //Post: Delega la rama actual que se explora a otro deacarreador y continua con la siguiente de ser posible
     G_Decarrier branch();
 
+    //Pre: True
+    //Post: Devuelve el numero de deacarreos acaecidos
+    int32_t getCarrys();
+
     //----> Rutinas MPI <----
 
     //Pre: Se debe haber ejecutado previamente init_MPI();

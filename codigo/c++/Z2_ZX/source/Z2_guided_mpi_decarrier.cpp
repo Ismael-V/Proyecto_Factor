@@ -384,6 +384,12 @@ bool G_Decarrier::existsGuess(){
 }
 
 //Pre: True
+//Post: Devuelve el numero de deacarreos acaecidos
+int32_t G_Decarrier::getCarrys(){
+    return this->carrys;
+}
+
+//Pre: True
 //Post: Delega la rama actual que se explora a otro deacarreador y continua con la siguiente rama
 G_Decarrier G_Decarrier::branch(){
 
