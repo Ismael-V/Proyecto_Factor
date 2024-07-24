@@ -48,32 +48,7 @@ void sendOrder(uint32_t const order[2], int dest){
 //Post: Recibe de forma bloqueante una orden del nodo MPI designado
 static inline
 void recvOrder(uint32_t order[2], int src){
-    uint32_t order[2] = {0};
     MPI_Recv(order, 1, MPI_REMOTE_CALL, src, COMMAND_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-}
-
-//Pre: True
-//Post: Rutina que se dedica a ofrecer servicio por parte del cliente
-static inline
-void worker_server_routine(uint32_t id, std::string key){
-
-    //Declaramos un codigo y la variable que gestionara la orden a seguir
-    uint32_t code;
-    uint32_t command[2];
-    atomic<uint32_t> order = ORD_NULL;
-
-    //Lanzamos un hilo con la rutina de trabajo del cliente
-    thread cliente(worker_client_routine, std::ref(order), id, key);
-
-    //Mientras que la orden recibida no sea de terminacion
-    while(!(order & ORD_TERMINATE)){
-        //Escuchamos peticion y hacemos visible la nueva orden
-        recvOrder(command, MASTER_NODE);
-        order.store(command[1]);
-    }
-
-    //Terminamos, esperando a que el otro hilo termine
-    cliente.join();
 }
 
 //Pre: True
@@ -164,33 +139,24 @@ void worker_client_routine(atomic<uint32_t>& order, uint32_t id, std::string key
     mpz_clears(clave_publica, p, NULL);
 }
 
-void master_server_routine(uint32_t numOfWorkers, std::string key){
-    //Declaramos un codigo y la variable que gestionara la orden a seguir
-    uint32_t command[2] = {MASTER_NODE, ORD_NULL};
-    atomic<uint32_t> order[2] = {0, ORD_NULL};
-    atomic<bool> requestPend = false;
+//Pre: True
+//Post: Rutina que se dedica a ofrecer servicio por parte del cliente
+static inline
+void worker_server_routine(uint32_t id, std::string key){
 
-    //Declaramos el numero de trabajadores activos
-    atomic<bool> activeWorkers = true;
+    //Declaramos un codigo y la variable que gestionara la orden a seguir
+    uint32_t code;
+    uint32_t command[2];
+    atomic<uint32_t> order = ORD_NULL;
 
     //Lanzamos un hilo con la rutina de trabajo del cliente
-    thread cliente(master_client_routine, order, std::ref(requestPend), std::ref(activeWorkers), numOfWorkers, key);
+    thread cliente(worker_client_routine, std::ref(order), id, key);
 
-    //Mientras que haya algun trabajador
-    while(activeWorkers){
-
+    //Mientras que la orden recibida no sea de terminacion
+    while(!(order & ORD_TERMINATE)){
         //Escuchamos peticion y hacemos visible la nueva orden
-        recvOrder(command, MPI_ANY_SOURCE);
-
-        //Guardamos la nueva orden
-        order[0] = command[0];
-        order[1] = command[1];
-
-        //Hacemos notorio que hay una peticion pendiente
-        requestPend.store(true);
-
-        //Si hay una peticion pendiente dormimos
-        while(requestPend) sched_yield();
+        recvOrder(command, MASTER_NODE);
+        order.store(command[1]);
     }
 
     //Terminamos, esperando a que el otro hilo termine
@@ -202,8 +168,12 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     //Declaramos un codigo y la variable que gestionara la orden a seguir
     uint32_t command[2] = {MASTER_NODE, ORD_NULL};
 
-    //Creamos un array de trabajadores y los ponemos con el estado pendiente de orden
-    uint8_t* workers = new uint8_t[activeWorkers](STATUS_PENDING);
+    uint8_t* workers = nullptr;
+
+    if(activeWorkers){
+        //Creamos un array de trabajadores y los ponemos con el estado pendiente de orden
+        workers = new uint8_t[activeWorkers](STATUS_PENDING);
+    }
 
     //Aqui ira el resultado
     std::string factor = "";
@@ -232,11 +202,6 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     //Profundizamos en el grafo de deacarreos una cantidad para realizar las ramas
     G_Decarrier masterBranch(binary_representation);
     std::string next_guess;
-
-    //Si no hay trabajadores lo indicamos
-    if(numOfWorkers == 0){
-        activeWorkers = false;
-    }
 
     //Mientras no alacancemos una profundidad adecuada y queden elementos por explorar
     while(!activeWorkers || (masterBranch.getCarrys() < CARRY_THRESHOLD && masterBranch.nextDecarry(next_guess))){
@@ -297,19 +262,19 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 
                 //Si ha enviado la orden de terminacion lo marcamos como inactivo
                 case ORD_TERMINATE:
-                    workers[order[0]] = STATUS_OFFLINE;
-                    uint8_t isActive = 0;
+			{
+                    		workers[order[0]] = STATUS_OFFLINE;
+                    		uint8_t isActive = 0;
 
-                    //Recalculamos activeWorkers
-                    for(uint32_t i = 0; i < numOfWorkers && !isActive; i++){
-                        if(workers[i] != STATUS_OFFLINE){
-                            isActive = 1;
-                        }
-                    }
-
-                    activeWorkers.store(isActive);
-                    break;
-
+                    		//Recalculamos activeWorkers
+                    		for(uint32_t i = 0; i < numOfWorkers && !isActive; i++){
+                        		if(workers[i] != STATUS_OFFLINE){
+                            			isActive = 1;
+                        		}
+                    		}
+                    		activeWorkers.store(isActive);
+                    		break;
+			}
                 //Si ha encontrado la solucion
                 case ORD_SOL_FOUND:
 
@@ -361,6 +326,39 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     mpz_clears(clave_publica, p, NULL);
 
     std::cout << "Clave: " << key << "\nFactor: " << factor << std::endl;
+}
+
+void master_server_routine(uint32_t numOfWorkers, std::string key){
+    //Declaramos un codigo y la variable que gestionara la orden a seguir
+    uint32_t command[2] = {MASTER_NODE, ORD_NULL};
+    atomic<uint32_t> order[2] = {0, ORD_NULL};
+    atomic<bool> requestPend = false;
+
+    //Declaramos el numero de trabajadores activos
+    atomic<bool> activeWorkers = (numOfWorkers != 0);
+
+    //Lanzamos un hilo con la rutina de trabajo del cliente
+    thread cliente(master_client_routine, order, std::ref(requestPend), std::ref(activeWorkers), numOfWorkers, key);
+
+    //Mientras que haya algun trabajador
+    while(activeWorkers){
+
+        //Escuchamos peticion y hacemos visible la nueva orden
+        recvOrder(command, MPI_ANY_SOURCE);
+
+        //Guardamos la nueva orden
+        order[0] = command[0];
+        order[1] = command[1];
+
+        //Hacemos notorio que hay una peticion pendiente
+        requestPend.store(true);
+
+        //Si hay una peticion pendiente dormimos
+        while(requestPend) sched_yield();
+    }
+
+    //Terminamos, esperando a que el otro hilo termine
+    cliente.join();
 }
 
 int main(int argc, char** argv){

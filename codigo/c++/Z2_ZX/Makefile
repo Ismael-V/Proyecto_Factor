@@ -20,7 +20,7 @@ objects/Profiler.o: source/Profiler.cpp
 	g++ $(opt_flags) -std=c++20 -c source/Profiler.cpp -o objects/Profiler.o
 
 generic_method_mpi: generic_method_mpi.cpp objects/Solve_Factor_mpi.o  objects/Z2_polynomial_mpi.o objects/Z2_guided_mpi_decarrier.o objects/Profiler_mpi.o
-	mpic++ $(opt_flags) -std=c++20 generic_method_mpi.cpp objects/Solve_Factor_mpi.o  objects/Z2_polynomial_mpi.o objects/Z2_guided_mpi_decarrier.o objects/Profiler_mpi.o -lgmp -lthread -o bin/generic_method_mpi
+	mpic++ $(opt_flags) -std=c++20 generic_method_mpi.cpp objects/Solve_Factor_mpi.o  objects/Z2_polynomial_mpi.o objects/Z2_guided_mpi_decarrier.o objects/Profiler_mpi.o -lgmp -o bin/generic_method_mpi
 
 objects/Solve_Factor_mpi.o: source/Solve_Factor.cpp 
 	mpic++ $(opt_flags) -std=c++20 -c source/Solve_Factor.cpp -o objects/Solve_Factor_mpi.o
