@@ -53,7 +53,7 @@ void recvOrder(uint32_t order[2], int src){
 
 //Pre: True
 //Post: Rutina que se encarga de realizar las tareas pertinentes que se le manden
-void worker_client_routine(atomic<uint32_t>& order, atomic<uint32_t>& requestPend, uint32_t id, std::string key){
+void worker_client_routine(atomic<uint32_t>& order, atomic<bool>& requestPend, uint32_t id, std::string key){
 
     //Declaramos la variable de comandos que enviaremos al master
     uint32_t command[2] = {id, ORD_NULL};
@@ -110,6 +110,8 @@ void worker_client_routine(atomic<uint32_t>& order, atomic<uint32_t>& requestPen
                         char resultado[KEY_SIZE] = {};
                         mpz_get_str(resultado, 10, p);
                         
+			std::cout << "Worker " << id << " encontro solucion, enviando...\n";
+
                         //Enviamos la orden de solucion encontrada
                         command[1] = ORD_SOL_FOUND;
                         sendOrder(command, MASTER_NODE);
@@ -125,9 +127,12 @@ void worker_client_routine(atomic<uint32_t>& order, atomic<uint32_t>& requestPen
                 //Si hemos salido y no ha sido por terminacion o por encontrar solucion
                 if(!(order & ORD_TERMINATE) && !(command[1] & ORD_SOL_FOUND)){
 
+		    std::cout << "Worker " << id << " se quedo sin trabajo\n";
+
                     //Nos hemos quedado sin trabajo, asi que nos colocamos en pendientes
                     command[1] = ORD_END_WORK;
                     sendOrder(command, MASTER_NODE);
+
                 }
 
                 //Reiniciamos el comando
@@ -142,7 +147,7 @@ void worker_client_routine(atomic<uint32_t>& order, atomic<uint32_t>& requestPen
         }
     }
 
-    //std::cout << "Worker " << id << " va ha enviar terminacion\n";
+    std::cout << "Worker " << id << " va ha enviar terminacion\n";
 
     //Enviamos el comando terminar al nodo master
     command[1] = ORD_TERMINATE;
@@ -194,7 +199,11 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 
     if(activeWorkers){
         //Creamos un array de trabajadores y los ponemos con el estado pendiente de orden
-        workers = new uint8_t[numOfWorkers](STATUS_PENDING);
+        workers = new uint8_t[numOfWorkers];
+
+        for(uint32_t i = 0; i < numOfWorkers; i++){
+	    workers[i] = STATUS_PENDING;
+	}
     }
 
     //Aqui ira el resultado
@@ -254,6 +263,8 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 
             //Enviamos el comando de terminacion a todos los nodos si aun no lo hemos hecho
             for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound; i++){
+
+		std::cout << i << std::endl;
                 if(workers[i] != STATUS_OFFLINE){
 
 		    std::cout << "Terminando worker " << i + 1 << std::endl;
@@ -275,8 +286,12 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     //Mientras que haya algun trabajador activo
     while(activeWorkers){
 
+	//std::cout << "Master esta en rama principal\n";
+
         //Miramos si hay peticiones pendientes y de haberlas las atendemos
         if(requestPend){
+	    std::cout << "Peticion pendiente\n";
+
             switch(order[1]){
 
                 //Si el nodo termina su trabajo lo ponemos en espera
@@ -332,7 +347,7 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
         //Si hay un trabajador libre le enjaretamos una rama para que trabaje de no haber encontrado aun solucion
         for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound && masterBranch.existsGuess(); i++){
             if(workers[i] == STATUS_PENDING){
-                G_Decarrier branch(masterBranch.branch());
+                //G_Decarrier branch(masterBranch.branch());
 
                 //Enviamos la orden de trabajo
                 command[1] = ORD_WORK;
@@ -341,7 +356,7 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
                 sendOrder(command, i + 1);
 
                 //Enviamos la rama
-                G_Decarrier::MPI_Send_GDecarrier(branch, i + 1);
+                G_Decarrier::MPI_Send_GDecarrier(masterBranch, i + 1);
 
                 //Lo ponemos en activo
                 workers[i] = STATUS_ACTIVE;
@@ -375,13 +390,14 @@ void master_server_routine(uint32_t numOfWorkers, std::string key){
 
         //Escuchamos peticion y hacemos visible la nueva orden
         recvOrder(command, MPI_ANY_SOURCE);
+	//MPI_Recv(command, 1, MPI_REMOTE_CALL, MPI_ANY_SOURCE, COMMAND_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         //Guardamos la nueva orden
         order[0] = command[0];
         order[1] = command[1];
 
         //Hacemos notorio que hay una peticion pendiente
-        requestPend.store(true);
+        requestPend = true;
 
         //Si hay una peticion pendiente dormimos
         while(requestPend) sched_yield();
