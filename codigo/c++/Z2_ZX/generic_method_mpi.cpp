@@ -202,8 +202,8 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
         workers = new uint8_t[numOfWorkers];
 
         for(uint32_t i = 0; i < numOfWorkers; i++){
-	    workers[i] = STATUS_PENDING;
-	}
+	        workers[i] = STATUS_PENDING;
+	    }
     }
 
     //Aqui ira el resultado
@@ -232,7 +232,7 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 
     //Profundizamos en el grafo de deacarreos una cantidad para realizar las ramas
     G_Decarrier masterBranch(binary_representation);
-    std::string next_guess;
+    std::string next_guess = "";
 
     //Mientras no alacancemos una profundidad adecuada y queden elementos por explorar
     while((!activeWorkers || masterBranch.getCarrys() < CARRY_THRESHOLD) && masterBranch.nextDecarry(next_guess)){
@@ -264,10 +264,10 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
             //Enviamos el comando de terminacion a todos los nodos si aun no lo hemos hecho
             for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound; i++){
 
-		std::cout << i << std::endl;
+		        std::cout << i << std::endl;
                 if(workers[i] != STATUS_OFFLINE){
 
-		    std::cout << "Terminando worker " << i + 1 << std::endl;
+		            std::cout << "Terminando worker " << i + 1 << std::endl;
 
                     command[1] = ORD_TERMINATE;
                     sendOrder(command, i + 1);
@@ -290,7 +290,7 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 
         //Miramos si hay peticiones pendientes y de haberlas las atendemos
         if(requestPend){
-	    std::cout << "Peticion pendiente\n";
+	        std::cout << "Peticion pendiente\n";
 
             switch(order[1]){
 
@@ -347,16 +347,15 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
         //Si hay un trabajador libre le enjaretamos una rama para que trabaje de no haber encontrado aun solucion
         for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound && masterBranch.existsGuess(); i++){
             if(workers[i] == STATUS_PENDING){
-                //G_Decarrier branch(masterBranch.branch());
+                G_Decarrier branch(masterBranch.branch());
 
                 //Enviamos la orden de trabajo
                 command[1] = ORD_WORK;
-		
-		std::cout << "Enviando deacarreador al nodo MPI " << i + 1 << std::endl;
+		        std::cout << "Enviando deacarreador al nodo MPI " << i + 1 << std::endl;
                 sendOrder(command, i + 1);
 
                 //Enviamos la rama
-                G_Decarrier::MPI_Send_GDecarrier(masterBranch, i + 1);
+                G_Decarrier::MPI_Send_GDecarrier(branch, i + 1);
 
                 //Lo ponemos en activo
                 workers[i] = STATUS_ACTIVE;

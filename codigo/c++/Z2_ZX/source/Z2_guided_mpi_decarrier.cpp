@@ -133,6 +133,26 @@ G_Decarrier::G_Decarrier(G_Decarrier& other){
     this->carrys = other.carrys;
 
     //Clonamos los vectores
+    if(this->convolution_guess != nullptr){
+        delete this->convolution_guess;
+        //std::cout << "Boom_1!!\n";
+    }
+
+    if(this->constraint_vector != nullptr){
+        delete this->constraint_vector;
+        //std::cout << "Boom_2!!\n";
+    }
+
+    if(this->indexes != nullptr){
+        delete this->indexes;
+        //std::cout << "Boom_3!!\n";
+    }
+
+    if(this->times != nullptr){
+        delete this->times;
+        //std::cout << "Boom_4!!\n";
+    }
+
     this->convolution_guess = new uint32_t[other.size];
     this->constraint_vector = new uint32_t[other.size];
 
