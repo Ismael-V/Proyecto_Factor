@@ -574,7 +574,7 @@ void G_Decarrier::MPI_Send_GDecarrier(const G_Decarrier &d, int32_t dest){
     paquete.first = d.first;
 
     //Lo enviamos con la API de MPI
-    MPI_Send(&paquete, 1, MPI_WORK_PACKET, dest, WORK_CHANNEL, MPI_COMM_WORLD);
+    MPI_Ssend(&paquete, 1, MPI_WORK_PACKET, dest, WORK_CHANNEL, MPI_COMM_WORLD);
 }
 
 //Pre: Se debe haber ejecutado previamente init_MPI();
@@ -584,9 +584,11 @@ G_Decarrier G_Decarrier::MPI_Recv_GDecarrier(int32_t src){
     //Declaramos un paquete de trabajo
     work_packet paquete;
 
-    //Recibimos los datos con esta sentencia
-    MPI_Recv(&paquete, 1, MPI_WORK_PACKET, src, WORK_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    int ierr;
 
+    //Recibimos los datos con esta sentencia
+    ierr = MPI_Recv(&paquete, 1, MPI_WORK_PACKET, src, WORK_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    std::cout << "Estado de error de recepcion de decarrier: " << ierr << std::endl;
 
     //Declaramos el deacarreador que construiremos
     G_Decarrier d(paquete.size);
@@ -629,7 +631,7 @@ void MPI_Send_KeyValue(const std::string& key, int32_t dest){
     strcpy(clave, key.c_str());
 
     //Lo enviamos con la API de MPI
-    MPI_Send(&clave, 1, MPI_STR_KEY_VALUE, dest, KEY_VAL_CHANNEL, MPI_COMM_WORLD);
+    MPI_Ssend(&clave, 1, MPI_STR_KEY_VALUE, dest, KEY_VAL_CHANNEL, MPI_COMM_WORLD);
 }
 
 //Pre: Se debe haber ejecutado previamente init_MPI()
@@ -639,8 +641,11 @@ std::string MPI_Recv_KeyValue(int32_t src){
     //Generamos un buffer
     char clave[KEY_SIZE];
 
+    int ierr;
+
     //Recibimos los datos con esta sentencia
-    MPI_Recv(&clave, 1, MPI_STR_KEY_VALUE, src, KEY_VAL_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    ierr = MPI_Recv(&clave, 1, MPI_STR_KEY_VALUE, src, KEY_VAL_CHANNEL, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    std::cout << "Estado de error de recepcion de clave: " << ierr << std::endl;
 
     //Devolvemos la clave como una cadena de caracteres
     return std::string(clave);
