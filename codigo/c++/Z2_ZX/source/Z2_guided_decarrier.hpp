@@ -32,6 +32,8 @@ class G_Decarrier{
 
     public:
 
+    G_Decarrier(uint32_t tamanyo);
+
     //Pre: True
     //Post: Declara un deacarreador guiado
     G_Decarrier(std::string base);
