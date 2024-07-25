@@ -374,7 +374,8 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     }
 
     //Quitamos el vector de workers
-    delete workers;
+    delete[] workers;
+    workers = nullptr;
 
     //Finalizamos los numeros
     mpz_clears(clave_publica, p, NULL);

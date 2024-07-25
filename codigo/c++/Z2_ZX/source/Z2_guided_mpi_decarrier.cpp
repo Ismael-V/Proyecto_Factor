@@ -134,22 +134,22 @@ G_Decarrier::G_Decarrier(G_Decarrier& other){
 
     //Clonamos los vectores
     if(this->convolution_guess != nullptr){
-        delete this->convolution_guess;
+        delete[] this->convolution_guess;
         //std::cout << "Boom_1!!\n";
     }
 
     if(this->constraint_vector != nullptr){
-        delete this->constraint_vector;
+        delete[] this->constraint_vector;
         //std::cout << "Boom_2!!\n";
     }
 
     if(this->indexes != nullptr){
-        delete this->indexes;
+        delete[] this->indexes;
         //std::cout << "Boom_3!!\n";
     }
 
     if(this->times != nullptr){
-        delete this->times;
+        delete[] this->times;
         //std::cout << "Boom_4!!\n";
     }
 
@@ -190,22 +190,22 @@ G_Decarrier::G_Decarrier(G_Decarrier&& other){
 
     //Movemos los vectores
     if(this->convolution_guess != nullptr){
-        delete this->convolution_guess;
+        delete[] this->convolution_guess;
         //std::cout << "Boom_1!!\n";
     }
 
     if(this->constraint_vector != nullptr){
-        delete this->constraint_vector;
+        delete[] this->constraint_vector;
         //std::cout << "Boom_2!!\n";
     }
 
     if(this->indexes != nullptr){
-        delete this->indexes;
+        delete[] this->indexes;
         //std::cout << "Boom_3!!\n";
     }
 
     if(this->times != nullptr){
-        delete this->times;
+        delete[] this->times;
         //std::cout << "Boom_4!!\n";
     }
 
@@ -237,22 +237,22 @@ G_Decarrier::~G_Decarrier(){
 
     //std::cout << "Me inmolo\n";
     if(convolution_guess != nullptr){
-        delete convolution_guess;
+        delete[] convolution_guess;
         //std::cout << "Boom_1!!\n";
     }
 
     if(constraint_vector != nullptr){
-        delete constraint_vector;
+        delete[] constraint_vector;
         //std::cout << "Boom_2!!\n";
     }
 
     if(indexes != nullptr){
-        delete indexes;
+        delete[] indexes;
         //std::cout << "Boom_3!!\n";
     }
 
     if(times != nullptr){
-        delete times;
+        delete[] times;
         //std::cout << "Boom_4!!\n";
     }
 
