@@ -427,8 +427,17 @@ int main(int argc, char** argv){
         //Declaramos el ierr numero de procesos y mi id
         int ierr, num_procs, my_id;
 
-        //Iniciamos MPI
-        ierr = MPI_Init(&argc, &argv);
+        //Iniciamos MPI en modo hilo
+        int provisto;
+        ierr = MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provisto);
+
+        //Si el nivel de threading provisto es insuficiente abortamos la ejecucion.
+        if(provisto < MPI_THREAD_MULTIPLE){
+            
+            ierr = MPI_Finalize();
+            std::cout << "Error, el MPI con el que se ha compilado no soporta MPI_THREAD_MULTIPLE\n";
+            return 1;
+        }
 
         //Iniciamos los numeros
         ierr = MPI_Comm_rank(MPI_COMM_WORLD, &my_id);
