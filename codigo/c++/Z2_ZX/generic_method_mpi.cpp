@@ -74,7 +74,6 @@ void worker_client_routine(atomic<uint32_t>& order, atomic<bool>& requestPend, u
     //Mientras que la orden recibida no sea de terminacion
     while(active){
         
-
         if(requestPend){
             //Si la orden es de trabajo
             if(order == ORD_WORK){
@@ -147,11 +146,12 @@ void worker_client_routine(atomic<uint32_t>& order, atomic<bool>& requestPend, u
 
                 //Reiniciamos el comando
                 command[1] = ORD_NULL;
-            }else if(order == ORD_TERMINATE){
-
-                //Si la orden es terminar ponemos activo a 0
-                active = 0;
             }
+        }
+
+        //Si la orden es terminar ponemos activo a 0
+        if(order == ORD_TERMINATE){    
+            active = 0;
         }
     }
 
@@ -326,12 +326,12 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
                 //Si ha encontrado la solucion
                 case ORD_SOL_FOUND:
 
-		    std::cout << "Master se entera de que hay solucion\n";
+		            std::cout << "Master se entera de que hay solucion\n";
 
                     //Tomamos la solucion
                     factor = MPI_Recv_KeyValue(order[0]);
 
-		    std::cout << "Master ha recibido solucion\n";
+		            std::cout << "Master ha recibido solucion\n";
 
                     //Enviamos el comando de terminacion a todos los nodos si aun no lo hemos hecho
                     for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound; i++){
@@ -355,7 +355,7 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
             requestPend = false;
         }
 
-	//std::cout << solutionFound << std::endl;
+	    //std::cout << solutionFound << std::endl;
 
         //Si hay un trabajador libre le enjaretamos una rama para que trabaje de no haber encontrado aun solucion
         for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound && masterBranch.existsGuess(); i++){
