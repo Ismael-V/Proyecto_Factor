@@ -199,7 +199,7 @@ void worker_server_routine(uint32_t id, std::string key){
     cliente.join();
 }
 
-void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend, atomic<bool>& activeWorkers, uint32_t numOfWorkers, std::string key){
+void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend, atomic<bool>& activeWorkers, uint32_t numOfWorkers, std::string key, bool useHeuristic){
 
     //Declaramos un codigo y la variable que gestionara la orden a seguir
     uint32_t command[2] = {MASTER_NODE, ORD_NULL};
@@ -226,25 +226,51 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     //Declaramos los numeros
     mpz_t clave_publica;
     mpz_t p;
+    mpz_t zero;
 
     //Los inicializamos
-    mpz_inits(clave_publica, p, NULL);
+    mpz_inits(clave_publica, p, zero, NULL);
+    mpz_set_ui(zero, 0);
 
     //Colocamos el valor de la clave
     mpz_set_str(clave_publica, key.c_str(), 10);
+
+    //Sacamos el numero de bits de la clave publica
+    int32_t num_of_bits = mpz_sizeinbase(clave_publica, 2);
+
+    //Sacamos su peso de hamming
+    int32_t hamming_weight = mpz_hamdist(clave_publica, zero);
+
+    //Esta es la heuristica empleada
+    int32_t max_carrys = (num_of_bits*num_of_bits - 8*num_of_bits)/16;
+
+    if(max_carrys < 0){
+        max_carrys = 0;
+    }
+
+    //Declaramos la rama maestra
+    G_Decarrier* masterBranch;
 
     //Declaramos un array donde almacenaremos la representacion binaria
     char binary_representation[KEY_SIZE] = {};
 
     //Obtenemos la representacion binaria
     mpz_get_str(binary_representation, 2, clave_publica);
+    
+    //Si usamos heuristica
+    if(useHeuristic){
+        //Indicamos el numero maximo de deacarreos
+        masterBranch = new G_Decarrier(binary_representation, max_carrys);
+    }else{
+        //Generamos la rama maestra como siempre
+        masterBranch = new G_Decarrier(binary_representation);
+    }
 
     //Profundizamos en el grafo de deacarreos una cantidad para realizar las ramas
-    G_Decarrier masterBranch(binary_representation);
     std::string next_guess = "";
 
     //Mientras no alacancemos una profundidad adecuada y queden elementos por explorar
-    while((!activeWorkers || masterBranch.getCarrys() < CARRY_THRESHOLD) && masterBranch.nextDecarry(next_guess)){
+    while((!activeWorkers || masterBranch->getCarrys() < CARRY_THRESHOLD) && masterBranch->nextDecarry(next_guess)){
 
         //Declaramos un polinomio con esa representación
         Z2_poly<U_TYPE> clave_polinomica(next_guess);
@@ -289,6 +315,9 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
             break;
         }
     }
+
+    //Miramos que trabajadores estan idle o apagados
+    uint8_t areWorking = 0;
 
     //Mientras que haya algun trabajador activo
     while(activeWorkers){
@@ -337,7 +366,7 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
                     for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound; i++){
                         if(workers[i] != STATUS_OFFLINE){
 
-			                std::cout << "Master termina worker" + std::to_string(i + 1) + "\n";
+			                std::cout << "Master termina worker " + std::to_string(i + 1) + "\n";
 
                             command[1] = ORD_TERMINATE;
                             sendOrder(command, i + 1);
@@ -358,9 +387,9 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 	    //std::cout << solutionFound << std::endl;
 
         //Si hay un trabajador libre le enjaretamos una rama para que trabaje de no haber encontrado aun solucion
-        for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound && masterBranch.existsGuess(); i++){
+        for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound && masterBranch->existsGuess(); i++){
             if(workers[i] == STATUS_PENDING){
-                G_Decarrier branch(masterBranch.branch());
+                G_Decarrier branch(masterBranch->branch());
 
                 //Enviamos la orden de trabajo
                 command[1] = ORD_WORK;
@@ -375,19 +404,53 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
                 workers[i] = STATUS_ACTIVE;
             }
         }
+
+        //Si no existen mas guesses en la rama principal no se ha encontrado solucion y aun trabajan
+        if(!masterBranch->existsGuess() && !solutionFound && areWorking){
+            
+            //Decimos que no hay workers trabajando hasta que se pruebe lo contrario
+            areWorking = 0;
+
+            //Miramos si alguno trabaja
+            for(uint32_t i = 0; i < numOfWorkers && !areWorking; i++){
+                if(workers[i] == STATUS_ACTIVE){
+                        areWorking = 1;
+                }
+            }
+
+            //Si no estan trabajando
+            if(!areWorking){
+
+                //Finalizamos los procesos e indicamos que no hemos encontrado el factor
+                factor = "No encontrado";
+
+                //Enviamos el comando de terminacion a todos los nodos si aun no lo hemos hecho
+                for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound; i++){
+                    if(workers[i] != STATUS_OFFLINE){
+
+                        std::cout << "Master termina worker " + std::to_string(i + 1) + "\n";
+
+                        command[1] = ORD_TERMINATE;
+                        sendOrder(command, i + 1);
+
+                    }
+                }
+            }
+        }
     }
 
-    //Quitamos el vector de workers
+    //Quitamos el vector de workers y el deacarreador
     delete[] workers;
+    delete masterBranch;
     workers = nullptr;
 
     //Finalizamos los numeros
-    mpz_clears(clave_publica, p, NULL);
+    mpz_clears(clave_publica, p, zero, NULL);
 
-    std::cout << "Clave: " << key << "\nFactor: " << factor << std::endl;
+    std::cout << "Clave: " + key + "\nFactor: " + factor + "\n";
 }
 
-void master_server_routine(uint32_t numOfWorkers, std::string key){
+void master_server_routine(uint32_t numOfWorkers, std::string key, bool useHeuristic){
     //Declaramos un codigo y la variable que gestionara la orden a seguir
     uint32_t command[2] = {MASTER_NODE, ORD_NULL};
     atomic<uint32_t> order[2] = {0, ORD_NULL};
@@ -397,7 +460,7 @@ void master_server_routine(uint32_t numOfWorkers, std::string key){
     atomic<bool> activeWorkers = (numOfWorkers != 0);
 
     //Lanzamos un hilo con la rutina de trabajo del cliente
-    thread cliente(master_client_routine, order, std::ref(requestPend), std::ref(activeWorkers), numOfWorkers, key);
+    thread cliente(master_client_routine, order, std::ref(requestPend), std::ref(activeWorkers), numOfWorkers, key, useHeuristic);
 
     //Mientras que haya algun trabajador
     while(activeWorkers){
@@ -425,8 +488,8 @@ void master_server_routine(uint32_t numOfWorkers, std::string key){
 
 int main(int argc, char** argv){
 
-    //Si el numero de argumentos es 2
-    if(argc == 2){
+    //Si el numero de argumentos es 3
+    if(argc == 3){
         
         //Declaramos el ierr numero de procesos y mi id
         int ierr, num_procs, my_id;
@@ -451,9 +514,19 @@ int main(int argc, char** argv){
         init_MPI();
         initRemoteCalls();
 
+        //Iniciamos usar heuristica
+        bool useHeuristic = false;
+
+        //Si indicamos que si
+        if(std::string(argv[2]) == "true"){
+
+            //Activamos la funcionalidad
+            useHeuristic = true;
+        }
+
         //En funcion del tipo de proceso que sea inicio como master o worker
         if(my_id == MASTER_NODE){
-            master_server_routine(num_procs - 1, std::string(argv[1]));
+            master_server_routine(num_procs - 1, std::string(argv[1]), useHeuristic);
         }else{
             worker_server_routine(my_id, std::string(argv[1]));
         }
@@ -462,7 +535,7 @@ int main(int argc, char** argv){
         ierr = MPI_Finalize();
     }else{
 
-        std::cout << "Utilizacion: " << argv[0] << " <clave_publica>\n";
+        std::cout << "Utilizacion: " << argv[0] << " <clave_publica> <usar_heuristica[true]>\n";
     }
 
     return 0;
