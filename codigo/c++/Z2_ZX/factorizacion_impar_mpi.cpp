@@ -254,6 +254,9 @@ void master_client_routine(std::atomic<uint32_t> orden[2], std::atomic<bool>& pe
                 factor = std::string(solucion);
                 break;
             }
+
+            //Si no divide probamos con la siguiente
+            mpz_add_ui(guess, guess, 2);
         }
 
         mpz_clears(N, sqrt_N, guess, NULL);
