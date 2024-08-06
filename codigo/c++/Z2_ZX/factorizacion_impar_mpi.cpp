@@ -137,7 +137,7 @@ void worker_server_routine(uint32_t id, std::string key, uint32_t num_workers){
     cliente.join();
 }
 
-void master_client_routine(std::atomic<uint32_t> orden[2], std::atomic<bool> peticion_pendiente, std::atomic<bool> trabajadores_activos, uint32_t num_workers, std::string key){
+void master_client_routine(std::atomic<uint32_t> orden[2], std::atomic<bool>& peticion_pendiente, std::atomic<bool>& trabajadores_activos, uint32_t num_workers, std::string key){
 
     //Declaramos el lugar donde sacaremos el factor
     std::string factor;
