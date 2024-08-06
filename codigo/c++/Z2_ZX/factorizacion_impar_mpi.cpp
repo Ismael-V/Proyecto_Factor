@@ -67,6 +67,9 @@ void worker_client_routine(std::atomic<bool>& enviando_datos, std::atomic<bool>&
     //Si la guess es par la corregimos para que sea impar
     if(mpz_even_p(guess)) mpz_add_ui(guess, guess, 1);
 
+    //Si la guess es 1 la corregimos a 3
+    if(mpz_cmp_ui(guess, 1) == 0) mpz_set_ui(guess, 3);
+
     //Mientras que la guess no exceda al limite superior y no se indique terminacion
     while(mpz_cmp(guess, sup_limit) <= 0 && !terminate){
 
