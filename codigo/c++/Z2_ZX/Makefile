@@ -1,5 +1,5 @@
 
-opt_flags= -O0 -g #-march=native -O3
+opt_flags= -march=native -O3
 
 hamming_equality_attack: hamming_equality_attack.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o
 	g++ $(opt_flags) -std=c++20 hamming_equality_attack.cpp objects/Solve_Factor.o objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o -lgmp -o bin/hamming_equality_attack
@@ -33,6 +33,12 @@ objects/Z2_guided_mpi_decarrier.o: source/Z2_guided_mpi_decarrier.cpp
 
 objects/Profiler_mpi.o: source/Profiler.cpp
 	mpic++ $(opt_flags) -std=c++20 -c source/Profiler.cpp -o objects/Profiler_mpi.o
+
+factorizacion_impar_mpi: factorizacion_impar_mpi.cpp
+	mpic++ $(opt_flags) -std=c++20 factorizacion_impar_mpi.cpp -o bin/factorizacion_impar_mpi -lgmp
+
+generic_method_many_trials: generic_method_many_trials.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o
+	g++ $(opt_flags) -std=c++20 generic_method_many_trials.cpp objects/Solve_Factor.o objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o -lgmp -o bin/generic_method_many_trials
 
 clean: 
 	rm objects/*
