@@ -40,5 +40,8 @@ factorizacion_impar_mpi: factorizacion_impar_mpi.cpp
 generic_method_many_trials: generic_method_many_trials.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o
 	g++ $(opt_flags) -std=c++20 generic_method_many_trials.cpp objects/Solve_Factor.o objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o -lgmp -o bin/generic_method_many_trials
 
+weighted_semiprime_gen: weighted_semiprime_gen.cpp
+	 g++ $(opt_flags) -std=c++20 weighted_semiprime_gen.cpp -o bin/weighted_semiprime_gen
+
 clean: 
 	rm objects/*
