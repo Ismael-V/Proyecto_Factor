@@ -1,0 +1,290 @@
+ismael@DESKTOP-VS6DN81:~/cado-nfs-master$ time python3 cado-nfs.py 803469022129496566413832787617400811301815554554649653438361
+Info:root: Using default parameter file /home/ismael/cado-nfs-master/parameters/factor/params.c60
+Info:root: No database exists yet
+Info:root: Created temporary directory /tmp/cado.jqxre6uq
+Info:Database: Opened connection to database /tmp/cado.jqxre6uq/c60.db
+Info:root: Set tasks.linalg.bwc.threads=8 based on detected physical cores
+Info:root: Set tasks.threads=8 based on detected logical cpus
+Info:root: tasks.threads = 8 [via tasks.threads]
+Info:root: tasks.polyselect.threads = 2 [via tasks.polyselect.threads]
+Info:root: tasks.sieve.las.threads = 2 [via tasks.sieve.las.threads]
+Info:root: tasks.linalg.bwc.threads = 8 [via tasks.linalg.bwc.threads]
+Info:root: tasks.sqrt.threads = 8 [via tasks.threads]
+Info:root: slaves.scriptpath is /home/ismael/cado-nfs-master
+Info:root: Command line parameters: cado-nfs.py 803469022129496566413832787617400811301815554554649653438361
+Info:root: If this computation gets interrupted, it can be resumed with cado-nfs.py /tmp/cado.jqxre6uq/c60.parameters_snapshot.0
+Info:Server Launcher: Adding DESKTOP-VS6DN81 to whitelist to allow clients on localhost to connect
+Info:HTTP server: Using non-threaded HTTPS server
+Info:HTTP server: Using whitelist: localhost,DESKTOP-VS6DN81
+Info:Lattice Sieving: param rels_wanted is 0
+Info:Complete Factorization / Discrete logarithm: Factoring 803469022129496566413832787617400811301815554554649653438361
+Info:HTTP server: serving at https://DESKTOP-VS6DN81:35507 (0.0.0.0)
+Info:HTTP server: For debugging purposes, the URL above can be accessed if the server.only_registered=False parameter is added
+Info:HTTP server: You can start additional cado-nfs-client.py scripts with parameters: --server=https://DESKTOP-VS6DN81:35507 --certsha1=3a059440fab195b7941405bd0e962477bd476bbf
+Info:HTTP server: If you want to start additional clients, remember to add their hosts to server.whitelist
+Info:Client Launcher: Starting client id localhost on host localhost
+Info:Client Launcher: Starting client id localhost+2 on host localhost
+Info:Client Launcher: Starting client id localhost+3 on host localhost
+Info:Client Launcher: Starting client id localhost+4 on host localhost
+Info:Client Launcher: Running clients: localhost (Host localhost, PID 22531), localhost+2 (Host localhost, PID 22533), localhost+3 (Host localhost, PID 22535), localhost+4 (Host localhost, PID 22537)
+Info:Polynomial Selection (size optimized): Starting
+Info:Polynomial Selection (size optimized): 0 polynomials in queue from previous run
+Info:Polynomial Selection (size optimized): Adding workunit c60_polyselect1_0-5000 to database
+Info:Polynomial Selection (size optimized): Adding workunit c60_polyselect1_5000-10000 to database
+Info:HTTP server: 127.0.0.1 Sending workunit c60_polyselect1_0-5000 to client localhost
+Info:HTTP server: 127.0.0.1 Sending workunit c60_polyselect1_5000-10000 to client localhost+2
+Info:Polynomial Selection (size optimized): Parsed 52 polynomials, added 16 to priority queue (has 10)
+Info:Polynomial Selection (size optimized): Worst polynomial in queue now has exp_E 18.090000
+Info:Polynomial Selection (size optimized): Marking workunit c60_polyselect1_0-5000 as ok (50.0% => ETA Unknown)
+Info:Polynomial Selection (size optimized): Parsed 36 polynomials, added 1 to priority queue (has 10)
+Info:Polynomial Selection (size optimized): Worst polynomial in queue now has exp_E 18.030000
+Info:Polynomial Selection (size optimized): Marking workunit c60_polyselect1_5000-10000 as ok (100.0% => ETA Tue Aug 20 03:42:31 2024)
+Info:Polynomial Selection (size optimized): Finished
+Info:Complete Factorization / Discrete logarithm: Polynomial Selection (size optimized)
+Info:Polynomial Selection (size optimized): Aggregate statistics:
+Info:Polynomial Selection (size optimized): potential collisions: 147.72
+Info:Polynomial Selection (size optimized): raw lognorm (nr/min/av/max/std): 154/19.180/22.283/25.410/0.921
+Info:Polynomial Selection (size optimized): optimized lognorm (nr/min/av/max/std): 88/19.160/21.574/23.950/0.903
+Info:Polynomial Selection (size optimized): Total time: 1.22
+Info:Polynomial Selection (root optimized): Starting
+Info:Polynomial Selection (root optimized): No polynomial was previously found
+Info:Polynomial Selection (root optimized): Adding workunit c60_polyselect2_0-1 to database
+Info:Polynomial Selection (root optimized): Adding workunit c60_polyselect2_6-7 to database
+Info:HTTP server: 127.0.0.1 Sending workunit c60_polyselect2_0-1 to client localhost+3
+Info:HTTP server: 127.0.0.1 Sending workunit c60_polyselect2_6-7 to client localhost+4
+Info:Polynomial Selection (root optimized): New best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.jyat8u2u.opt_6: Murphy E = 7.158e-06
+Info:Polynomial Selection (root optimized): Best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.jyat8u2u.opt_6 with E=6.944e-06 is no better than current best with E=7.158e-06
+Info:Polynomial Selection (root optimized): Best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.jyat8u2u.opt_6 with E=5.904e-06 is no better than current best with E=7.158e-06
+Info:Polynomial Selection (root optimized): Best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.jyat8u2u.opt_6 with E=6.430e-06 is no better than current best with E=7.158e-06
+Info:Polynomial Selection (root optimized): Marking workunit c60_polyselect2_6-7 as ok (40.0% => ETA Unknown)
+Info:Polynomial Selection (root optimized): Best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.ymsovuxz.opt_0 with E=7.067e-06 is no better than current best with E=7.158e-06
+Info:Polynomial Selection (root optimized): New best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.ymsovuxz.opt_0: Murphy E = 7.182e-06
+Info:Polynomial Selection (root optimized): New best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.ymsovuxz.opt_0: Murphy E = 7.796e-06
+Info:Polynomial Selection (root optimized): Best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.ymsovuxz.opt_0 with E=6.140e-06 is no better than current best with E=7.796e-06
+Info:Polynomial Selection (root optimized): Best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.ymsovuxz.opt_0 with E=6.312e-06 is no better than current best with E=7.796e-06
+Info:Polynomial Selection (root optimized): New best polynomial from file /tmp/cado.jqxre6uq/c60.upload/c60.polyselect2.ymsovuxz.opt_0: Murphy E = 7.944e-06
+Info:Polynomial Selection (root optimized): Marking workunit c60_polyselect2_0-1 as ok (100.0% => ETA Tue Aug 20 03:42:43 2024)
+Info:Polynomial Selection (root optimized): Kept 7 polynomials with MurphyE from 7.944e-06 to 6.430e-06
+Info:Polynomial Selection (root optimized): Polynomial /tmp/cado.jqxre6uq/c60.poly.0 had MurphyE 7.944e-06, refined to 7.905e-06
+Info:Polynomial Selection (root optimized): Polynomial /tmp/cado.jqxre6uq/c60.poly.1 had MurphyE 7.796e-06, refined to 7.728e-06
+Info:Polynomial Selection (root optimized): Polynomial /tmp/cado.jqxre6uq/c60.poly.2 had MurphyE 7.182e-06, refined to 7.387e-06
+Info:Polynomial Selection (root optimized): Polynomial /tmp/cado.jqxre6uq/c60.poly.3 had MurphyE 7.158e-06, refined to 7.093e-06
+Info:Polynomial Selection (root optimized): Polynomial /tmp/cado.jqxre6uq/c60.poly.4 had MurphyE 7.067e-06, refined to 7.031e-06
+Info:Polynomial Selection (root optimized): Polynomial /tmp/cado.jqxre6uq/c60.poly.5 had MurphyE 6.944e-06, refined to 7.007e-06
+Info:Polynomial Selection (root optimized): Polynomial /tmp/cado.jqxre6uq/c60.poly.6 had MurphyE 6.430e-06, refined to 6.360e-06
+Info:Polynomial Selection (root optimized): Best polynomial is /tmp/cado.jqxre6uq/c60.poly.0
+Info:Polynomial Selection (root optimized): Finished, best polynomial has Murphy_E = 7.944e-06
+Info:Polynomial Selection (root optimized): Best polynomial is:
+n: 803469022129496566413832787617400811301815554554649653438361
+skew: 2913.164
+c0: 114849069643214784
+c1: 15208822494
+c2: -3605257121
+c3: -1976
+c4: 1920
+Y0: -143516601352663
+Y1: 20453456893
+# MurphyE (Bf=5.243e+05,Bg=2.621e+05,area=3.249e+10) = 7.944e-06
+# f(x) = 1920*x^4-1976*x^3-3605257121*x^2+15208822494*x+114849069643214784
+# g(x) = 20453456893*x-143516601352663
+
+Info:Polynomial Selection (root optimized): Best overall polynomial was 6-th in list after size optimization
+Info:Complete Factorization / Discrete logarithm: Polynomial Selection (root optimized)
+Info:Polynomial Selection (root optimized): Aggregate statistics:
+Info:Polynomial Selection (root optimized): Total time: 8.01
+Info:Polynomial Selection (root optimized): Rootsieve time: 7.9
+Info:Generate Factor Base: Starting
+Info:Generate Factor Base: Finished
+Info:Complete Factorization / Discrete logarithm: Generate Factor Base
+Info:Generate Factor Base: Total cpu/real time for makefb: 0.09/0.0329511
+Info:Generate Free Relations: Starting
+Info:Generate Free Relations: Found 1017 free relations
+Info:Generate Free Relations: Finished
+Info:Complete Factorization / Discrete logarithm: Generate Free Relations
+Info:Generate Free Relations: Total cpu/real time for freerel: 0.95/0.242335
+Info:Lattice Sieving: Starting
+Info:Lattice Sieving: We want 49264 relation(s)
+Info:Lattice Sieving: Adding workunit c60_sieving_61961-62000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_62000-64000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_64000-66000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_66000-68000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_68000-70000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_70000-72000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_72000-74000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_74000-76000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_76000-78000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_78000-80000 to database
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_61961-62000 to client localhost+2
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_62000-64000 to client localhost
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_64000-66000 to client localhost+2
+Info:Lattice Sieving: Adding workunit c60_sieving_80000-82000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_82000-84000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_84000-86000 to database
+Info:Lattice Sieving: Found 129 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.61961-62000.gvxv_lh7.gz', total is now 129/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_61961-62000 as ok (0.3% => ETA Unknown)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_66000-68000 to client localhost+4
+Info:Lattice Sieving: Adding workunit c60_sieving_86000-88000 to database
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_68000-70000 to client localhost+3
+Info:Lattice Sieving: Adding workunit c60_sieving_88000-90000 to database
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_70000-72000 to client localhost+2
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_72000-74000 to client localhost
+Info:Lattice Sieving: Adding workunit c60_sieving_90000-92000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_92000-94000 to database
+Info:Lattice Sieving: Found 3882 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.62000-64000.yrty4mw_.gz', total is now 4011/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_62000-64000 as ok (8.1% => ETA Tue Aug 20 03:45:08 2024)
+Info:Lattice Sieving: Found 3387 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.64000-66000.h0yn79s1.gz', total is now 7398/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_64000-66000 as ok (15.0% => ETA Tue Aug 20 03:44:01 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_74000-76000 to client localhost+4
+Info:Lattice Sieving: Adding workunit c60_sieving_94000-96000 to database
+Info:Lattice Sieving: Found 4119 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.66000-68000.6fkb_vxy.gz', total is now 11517/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_66000-68000 as ok (23.4% => ETA Tue Aug 20 03:43:39 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_76000-78000 to client localhost+3
+Info:Lattice Sieving: Adding workunit c60_sieving_96000-98000 to database
+Info:Lattice Sieving: Found 3728 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.68000-70000.7diae1ez.gz', total is now 15245/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_68000-70000 as ok (30.9% => ETA Tue Aug 20 03:43:30 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_78000-80000 to client localhost
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_80000-82000 to client localhost+2
+Info:Lattice Sieving: Adding workunit c60_sieving_98000-100000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_100000-102000 to database
+Info:Lattice Sieving: Found 4173 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.70000-72000.zwberh9a.gz', total is now 19418/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_70000-72000 as ok (39.4% => ETA Tue Aug 20 03:43:23 2024)
+Info:Lattice Sieving: Found 3688 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.72000-74000.7r_etsnk.gz', total is now 23106/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_72000-74000 as ok (46.9% => ETA Tue Aug 20 03:43:17 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_82000-84000 to client localhost+4
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_84000-86000 to client localhost+3
+Info:Lattice Sieving: Adding workunit c60_sieving_102000-104000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_104000-106000 to database
+Info:Lattice Sieving: Found 3693 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.74000-76000.57r3g_jf.gz', total is now 26799/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_74000-76000 as ok (54.4% => ETA Tue Aug 20 03:43:17 2024)
+Info:Lattice Sieving: Found 3789 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.76000-78000.dk_fl46m.gz', total is now 30588/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_76000-78000 as ok (62.1% => ETA Tue Aug 20 03:43:13 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_86000-88000 to client localhost
+Info:Lattice Sieving: Adding workunit c60_sieving_106000-108000 to database
+Info:Lattice Sieving: Found 3435 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.78000-80000.oshoi4mp.gz', total is now 34023/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_78000-80000 as ok (69.1% => ETA Tue Aug 20 03:43:12 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_88000-90000 to client localhost+2
+Info:Lattice Sieving: Adding workunit c60_sieving_108000-110000 to database
+Info:Lattice Sieving: Found 4132 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.80000-82000.3nz3w3jf.gz', total is now 38155/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_80000-82000 as ok (77.5% => ETA Tue Aug 20 03:43:11 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_90000-92000 to client localhost+4
+Info:Lattice Sieving: Adding workunit c60_sieving_110000-112000 to database
+Info:Lattice Sieving: Found 3861 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.82000-84000.8rxno12d.gz', total is now 42016/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_82000-84000 as ok (85.3% => ETA Tue Aug 20 03:43:10 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_92000-94000 to client localhost+3
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_94000-96000 to client localhost
+Info:Lattice Sieving: Adding workunit c60_sieving_112000-114000 to database
+Info:Lattice Sieving: Adding workunit c60_sieving_114000-116000 to database
+Info:Lattice Sieving: Found 3192 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.84000-86000.9t1b0ti6.gz', total is now 45208/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_84000-86000 as ok (91.8% => ETA Tue Aug 20 03:43:09 2024)
+Info:Lattice Sieving: Found 2996 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.86000-88000.hwcl5ivn.gz', total is now 48204/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_86000-88000 as ok (97.8% => ETA Tue Aug 20 03:43:08 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_96000-98000 to client localhost+2
+Info:Lattice Sieving: Adding workunit c60_sieving_116000-118000 to database
+Info:Lattice Sieving: Found 3196 relations in '/tmp/cado.jqxre6uq/c60.upload/c60.88000-90000.f1abeuzi.gz', total is now 51400/49264
+Info:Lattice Sieving: Marking workunit c60_sieving_88000-90000 as ok (104.3% => ETA Tue Aug 20 03:43:08 2024)
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_98000-100000 to client localhost+4
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_100000-102000 to client localhost+3
+Info:Lattice Sieving: Adding workunit c60_sieving_118000-120000 to database
+Info:Lattice Sieving: Reached target of 49264 relations, now have 51400
+Info:Complete Factorization / Discrete logarithm: Lattice Sieving
+Info:Lattice Sieving: Aggregate statistics:
+Info:Lattice Sieving: Total number of relations: 51400
+Info:Lattice Sieving: Average J: 468.351 for 2401 special-q, max bucket fill -bkmult 1.0,1s:1.301670
+Info:Lattice Sieving: Total time: 61.18s
+Info:Filtering - Duplicate Removal, splitting pass: Starting
+Info:Filtering - Duplicate Removal, splitting pass: Splitting 15 new files
+Info:Filtering - Duplicate Removal, splitting pass: Relations per slice: 0: 25861, 1: 25539
+Info:Complete Factorization / Discrete logarithm: Filtering - Duplicate Removal, splitting pass
+Info:Filtering - Duplicate Removal, splitting pass: Total cpu/real time for dup1: 0.21/0.198169
+Info:Filtering - Duplicate Removal, splitting pass: Aggregate statistics:
+Info:Filtering - Duplicate Removal, splitting pass: CPU time for dup1: 0.1s
+Info:Filtering - Duplicate Removal, removal pass: Starting
+Info:HTTP server: 127.0.0.1 Sending workunit c60_sieving_102000-104000 to client localhost
+Info:Filtering - Duplicate Removal, removal pass: 23741 unique relations remain on slice 0
+Info:Filtering - Duplicate Removal, removal pass: 23426 unique relations remain on slice 1
+Info:Filtering - Duplicate Removal, removal pass: Of 51400 newly added relations 47167 were unique (ratio 0.917646)
+Info:Filtering - Duplicate Removal, removal pass: 47167 unique relations remain in total
+Info:Complete Factorization / Discrete logarithm: Filtering - Duplicate Removal, removal pass
+Info:Filtering - Duplicate Removal, removal pass: Total cpu/real time for dup2: 0.53/0.474257
+Info:Filtering - Duplicate Removal, removal pass: Aggregate statistics:
+Info:Filtering - Duplicate Removal, removal pass: CPU time for dup2: 0.4s
+Info:Filtering - Singleton removal: Starting
+Info:Filtering - Singleton removal: Reading 47167 unique and 1017 free relations, total 48184
+Info:Filtering - Singleton removal: After purge, 23676 relations with 23516 primes remain with weight 356539 and excess 160
+Info:Filtering - Singleton removal: Have enough relations
+Info:HTTP server: Got notification to stop serving Workunits
+Info:Lattice Sieving: Cancelling remaining workunits
+Info:Client Launcher: Stopped client localhost (Host localhost, PID 22531)
+Info:Client Launcher: Stopped client localhost+2 (Host localhost, PID 22533)
+Info:Client Launcher: Stopped client localhost+3 (Host localhost, PID 22535)
+Info:Client Launcher: Stopped client localhost+4 (Host localhost, PID 22537)
+Info:Complete Factorization / Discrete logarithm: Filtering - Singleton removal
+Info:Filtering - Singleton removal: Total cpu/real time for purge: 0.23/0.599198
+Info:Filtering - Merging: Starting
+Info:Filtering - Merging: Merged matrix has 6662 rows and total weight 965392 (144.9 entries per row on average)
+Info:Complete Factorization / Discrete logarithm: Filtering - Merging
+Info:Filtering - Merging: Total cpu/real time for merge: 4.02/0.702894
+Info:Filtering - Merging: Total cpu/real time for replay: 0.17/0.170957
+Info:Linear Algebra: Starting
+Info:Linear Algebra: krylov: N=64 ; ETA (N=256): Tue Aug 20 03:43:15 2024 [0.001 s/iter]
+Info:Linear Algebra: krylov: N=128 ; ETA (N=256): Tue Aug 20 03:43:15 2024 [0.001 s/iter]
+Info:Linear Algebra: krylov: N=192 ; ETA (N=256): Tue Aug 20 03:43:16 2024 [0.001 s/iter]
+Info:Linear Algebra: krylov: N=256 ; ETA (N=256): Tue Aug 20 03:43:16 2024 [0.001 s/iter]
+Info:Linear Algebra: lingen ETA: not available yet
+Info:Linear Algebra: lingen ETA: Tue Aug 20 03:43:16 2024
+Info:Linear Algebra: mksol: N=64 ; ETA (N=128): Tue Aug 20 03:43:17 2024 [0.002 s/iter]
+Info:Linear Algebra: mksol: N=104 ; ETA (N=128): Tue Aug 20 03:43:17 2024 [0.002 s/iter]
+Info:Complete Factorization / Discrete logarithm: Linear Algebra
+Info:Linear Algebra: Total cpu/real time for bwc: 5.83/3.35
+Info:Linear Algebra: Aggregate statistics:
+Info:Linear Algebra: Krylov: CPU time 0.71, WCT time 0.91, iteration CPU time 0, COMM 0.0, cpu-wait 0.0, comm-wait 0.0 (256 iterations)
+Info:Linear Algebra: Lingen CPU time 0.83, WCT time 0.47
+Info:Linear Algebra: Mksol: CPU time 0.41,  WCT time 0.79, iteration CPU time 0, COMM 0.0, cpu-wait 0.0, comm-wait 0.0 (128 iterations)
+Info:Quadratic Characters: Starting
+Info:Complete Factorization / Discrete logarithm: Quadratic Characters
+Info:Quadratic Characters: Total cpu/real time for characters: 0.29/0.0868936
+Info:Square Root: Starting
+Info:Square Root: Creating file of (a,b) values
+Info:Square Root: finished
+Info:Square Root: Factors: 1267650600228229401496703206297 633825300114115827748844864513
+Info:Complete Factorization / Discrete logarithm: Square Root
+Info:Square Root: Total cpu/real time for sqrt: 1.37/0.487254
+Info:HTTP server: Got notification to stop serving Workunits
+Info:Filtering - Duplicate Removal, splitting pass: Total cpu/real time for dup1: 0.21/0.198169
+Info:Filtering - Duplicate Removal, splitting pass: Aggregate statistics:
+Info:Filtering - Duplicate Removal, splitting pass: CPU time for dup1: 0.1s
+Info:Filtering - Duplicate Removal, removal pass: Total cpu/real time for dup2: 0.53/0.474257
+Info:Filtering - Duplicate Removal, removal pass: Aggregate statistics:
+Info:Filtering - Duplicate Removal, removal pass: CPU time for dup2: 0.4s
+Info:Square Root: Total cpu/real time for sqrt: 1.37/0.487254
+Info:Filtering - Merging: Total cpu/real time for merge: 4.02/0.702894
+Info:Filtering - Merging: Total cpu/real time for replay: 0.17/0.170957
+Info:Linear Algebra: Total cpu/real time for bwc: 5.83/3.35
+Info:Linear Algebra: Aggregate statistics:
+Info:Linear Algebra: Krylov: CPU time 0.71, WCT time 0.91, iteration CPU time 0, COMM 0.0, cpu-wait 0.0, comm-wait 0.0 (256 iterations)
+Info:Linear Algebra: Lingen CPU time 0.83, WCT time 0.47
+Info:Linear Algebra: Mksol: CPU time 0.41,  WCT time 0.79, iteration CPU time 0, COMM 0.0, cpu-wait 0.0, comm-wait 0.0 (128 iterations)
+Info:Filtering - Singleton removal: Total cpu/real time for purge: 0.23/0.599198
+Info:Generate Free Relations: Total cpu/real time for freerel: 0.95/0.242335
+Info:Lattice Sieving: Aggregate statistics:
+Info:Lattice Sieving: Total number of relations: 51400
+Info:Lattice Sieving: Average J: 468.351 for 2401 special-q, max bucket fill -bkmult 1.0,1s:1.301670
+Info:Lattice Sieving: Total time: 61.18s
+Info:Generate Factor Base: Total cpu/real time for makefb: 0.09/0.0329511
+Info:Polynomial Selection (root optimized): Aggregate statistics:
+Info:Polynomial Selection (root optimized): Total time: 8.01
+Info:Polynomial Selection (root optimized): Rootsieve time: 7.9
+Info:Polynomial Selection (size optimized): Aggregate statistics:
+Info:Polynomial Selection (size optimized): potential collisions: 147.72
+Info:Polynomial Selection (size optimized): raw lognorm (nr/min/av/max/std): 154/19.180/22.283/25.410/0.921
+Info:Polynomial Selection (size optimized): optimized lognorm (nr/min/av/max/std): 88/19.160/21.574/23.950/0.903
+Info:Polynomial Selection (size optimized): Total time: 1.22
+Info:Quadratic Characters: Total cpu/real time for characters: 0.29/0.0868936
+Info:HTTP server: Shutting down HTTP server
+Info:Complete Factorization / Discrete logarithm: Total cpu/elapsed time for entire Complete Factorization 128.37/57.9261
+Info:root: Cleaning up computation data in /tmp/cado.jqxre6uq
+1267650600228229401496703206297 633825300114115827748844864513
+
+real    0m58.457s
+user    0m23.865s
+sys     0m5.009s
