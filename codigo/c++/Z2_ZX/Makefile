@@ -1,8 +1,14 @@
 
-opt_flags= -march=native -O3
+opt_flags= -pedantic -Wall -Wextra -O3
 
 hamming_equality_attack: hamming_equality_attack.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o
 	g++ $(opt_flags) -std=c++20 hamming_equality_attack.cpp objects/Solve_Factor.o objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o -lgmp -o bin/hamming_equality_attack
+
+generic_method: generic_method.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o
+	g++ $(opt_flags) -std=c++20 generic_method.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o -lgmp -o bin/generic_method
+
+specific_method: specific_method.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o
+	g++ $(opt_flags) -std=c++20 specific_method.cpp objects/Solve_Factor.o  objects/Z2_polynomial.o objects/Z2_guided_decarrier.o objects/Profiler.o -lgmp -o bin/specific_method
 
 prueba_g_dec: prueba_g_dec.cpp objects/Z2_guided_decarrier.o
 	g++ $(opt_flags) -std=c++20 prueba_g_dec.cpp objects/Z2_guided_decarrier.o -o bin/prueba_g_dec
