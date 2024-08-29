@@ -249,11 +249,17 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
     //Profundizamos en el grafo de deacarreos una cantidad para realizar las ramas
     std::string next_guess = "";
 
+    //Declaramos el numero de acarreos a partir del cual haremos ramas
+    uint32_t branch_carry = 0;
+
+    //Si el maximo numero de acarreos es mayor al threshold podemos calcular el punto donde haremos ramas
+    if(max_carrys > CARRY_THRESHOLD) branch_carry = max_carrys - CARRY_THRESHOLD;
+
     //Comenzamos a tomar el tiempo aqui
     std::chrono::time_point<std::chrono::high_resolution_clock> comienzo = std::chrono::high_resolution_clock::now();
 
     //Mientras no alacancemos una profundidad adecuada y queden elementos por explorar
-    while((!activeWorkers || masterBranch.getCarrys() < CARRY_THRESHOLD) && masterBranch.nextDecarry(next_guess)){
+    while((!activeWorkers || masterBranch.getCarrys() < branch_carry) && masterBranch.nextDecarry(next_guess)){
 
         //Declaramos un polinomio con esa representación
         Z2_poly<U_TYPE> clave_polinomica(next_guess);
@@ -369,7 +375,58 @@ void master_client_routine(atomic<uint32_t> order[2], atomic<bool>& requestPend,
 
         //Si hay un trabajador libre le enjaretamos una rama para que trabaje de no haber encontrado aun solucion
         for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound && masterBranch.existsGuess(); i++){
-            if(workers[i] == STATUS_PENDING){
+
+            //Mientras no alacancemos una profundidad adecuada y queden elementos por explorar
+            while((masterBranch.getCarrys() < branch_carry) && masterBranch.nextDecarry(next_guess)){
+
+                //Declaramos un polinomio con esa representación
+                Z2_poly<U_TYPE> clave_polinomica(next_guess);
+
+                //Declaramos un vector de factores
+                std::vector<Z2_poly<U_TYPE>> factores = {};
+
+                //Aplicamos el algoritmo de Berlekamp para factorizar el polinomio representación
+                berlekamp_factorize(clave_polinomica, factores);
+
+                //Ordenamos los factores
+                std::sort(factores.begin(), factores.end());
+
+                //Buscamos la clave
+                solve_factor_blind(factores, clave_publica, p);
+
+                //De encontrarla la almacenamos en factor
+                if(mpz_cmp_ui(p, 0) != 0){
+
+                    //Declaramos un array donde almacenaremos el numero
+                    char resultado[KEY_SIZE] = {};
+                    mpz_get_str(resultado, 10, p);
+                    
+                    factor = std::string(resultado);
+
+                    //Enviamos el comando de terminacion a todos los nodos si aun no lo hemos hecho
+                    for(uint32_t i = 0; (i < numOfWorkers) && !solutionFound; i++){
+                        if(workers[i] != STATUS_OFFLINE){
+
+                            if(VERBOSE) std::cout << "Master finaliza worker" + std::to_string(i + 1) + "\n";
+
+                            command[1] = ORD_TERMINATE;
+                            sendOrder(command, i + 1);
+
+                        }
+                    }
+
+                    //Hemos encontrado la solucion
+                    solutionFound = 1;
+
+                    //Salimos del bucle de intentos
+                    break;
+                }
+            }
+
+            //Si no encontramos la solucion y hemos profundizado lo necesario
+            if(workers[i] == STATUS_PENDING && !solutionFound){
+
+                //Generamos una rama de la rama principal
                 G_Decarrier branch(masterBranch.branch());
 
                 //Enviamos la orden de trabajo
