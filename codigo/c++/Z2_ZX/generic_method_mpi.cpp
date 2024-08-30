@@ -30,7 +30,7 @@ constexpr uint8_t STATUS_ACTIVE = 2;
 
 constexpr uint32_t CARRY_THRESHOLD = 1;
 
-constexpr uint8_t VERBOSE = 1;
+constexpr uint8_t VERBOSE = 0;
 
 MPI_Datatype MPI_REMOTE_CALL;
 
