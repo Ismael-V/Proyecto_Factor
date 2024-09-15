@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Perbech
+    given-names: Ismael
+    affiliation: Universidad de Zaragoza
+title: "Generic Method Implementation"
+version: 1.0.0
+date-released: 2024-09-15
+url: "https://github.com/Ismael-V/Proyecto_Factor"
+repository-code: "https://github.com/Ismael-V/Proyecto_Factor"
+keywords:
+  - "factorization"
+  - "factor"
+  - "big numbers"
+  
+# Cita de la biblioteca GMP
+references:
+  - type: software
+    title: "GNU MP: The GNU Multiple Precision Arithmetic Library"
+    authors:
+      - given-names: "Torbjörn"
+        family-names: "Granlund"
+    version: "6.2.1"
+    url: "https://gmplib.org/"
+    license: "LGPL 3.0"
