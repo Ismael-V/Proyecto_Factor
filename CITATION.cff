@@ -8,6 +8,7 @@ title: "Generic Method Implementation"
 version: 1.0.0
 date-released: 2024-09-15
 url: "https://github.com/Ismael-V/Proyecto_Factor"
+howpublished: "\url{https://github.com/Ismael-V/Proyecto_Factor}"
 repository-code: "https://github.com/Ismael-V/Proyecto_Factor"
 keywords:
   - "factorization"
