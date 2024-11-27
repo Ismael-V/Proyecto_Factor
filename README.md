@@ -1,10 +1,13 @@
 Para compilar el código de la parte de C++ se requiere de la librería gmp (The GNU Multiple Precision Arithmetic Library) así como de make.
 Además, si se desea ejecutar las versiones mpi, se necesita de un sistema configurado para usar Open MPI (Message Passing Interface)
 
-1º) Se accede al directorio codigo/c++/Z2_ZX con el comando cd:
+1º) Se accede al directorio codigo/c++/Z2_ZX con el comando cd y se generan los directorios bin y objects de no existir:
 ```
 cd codigo/c++/Z2_ZX
+mkdir bin
+mkdir objects
 ```
+
 2º) Se ejecuta el comando make para uno de los siguientes targets:
 ```
   make specific_method
